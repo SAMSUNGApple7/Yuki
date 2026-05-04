@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yuki — Three minds, one growth.</title>
+<meta name="description" content="Yuki 是一款基于多智能体协作的个人成长助手。规划师拆目标、执行官追进度、复盘师写洞察 — 让每一天的成长被看见。" />
+<link rel="stylesheet" href="styles/design-system.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1a1a'/%3E%3Cpath d='M10 9l6 8 6-8M16 17v8' stroke='%23d4a857' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+<style>
+/* ===== Landing-specific ===== */
+
+/* —— Top nav —— */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  background: oklch(0.985 0.003 80 / 0.78);
+  border-bottom: 1px solid transparent;
+  transition: border-color 220ms ease, background 220ms ease;
+}
+.nav.scrolled { border-bottom-color: var(--line); }
+[data-theme="dark"] .nav { background: oklch(0.16 0.008 260 / 0.78); }
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px var(--gutter);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+.brand-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--ink);
+  display: grid; place-items: center;
+  color: var(--ember);
+}
+.brand-mark svg { width: 16px; height: 16px; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a { font-size: 14px; color: var(--ink-2); transition: color 160ms ease; }
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { display: flex; align-items: center; gap: 12px; }
+.nav-cta .btn { padding: 8px 16px; font-size: 14px; }
+.theme-toggle {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  display: grid; place-items: center;
+  color: var(--ink-2);
+}
+.theme-toggle:hover { border-color: var(--ink-3); color: var(--ink); }
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+}
+
+/* —— Hero —— */
+.hero {
+  position: relative;
+  padding: 160px var(--gutter) 80px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  margin-bottom: 32px;
+  animation: fade-up 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ember-2);
+  box-shadow: 0 0 0 4px oklch(0.74 0.10 75 / 0.18);
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}
+.hero-title {
+  font-size: var(--fs-display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  max-width: 980px;
+  margin: 0 auto;
+  color: var(--ink);
+  animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 80ms both;
+}
+.hero-title .accent { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--ember-2); }
+.hero-sub {
+  margin: 28px auto 0;
+  max-width: 640px;
+  font-size: var(--fs-lead);
+  color: var(--ink-2);
+  line-height: 1.55;
+  animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms both;
+}
+.hero-actions {
+  display: flex; justify-content: center; gap: 12px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+  animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 320ms both;
+}
+.hero-meta {
+  display: flex; justify-content: center; align-items: center; gap: 24px;
+  margin-top: 56px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  flex-wrap: wrap;
+  animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 440ms both;
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+.hero-meta .sep { width: 1px; height: 12px; background: var(--line-2); }
+
+/* —— Hero canvas (orbiting agents) —— */
+.hero-canvas {
+  position: relative;
+  margin: 80px auto 0;
+  width: 100%;
+  max-width: 980px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-2xl);
+  background: linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+  animation: fade-up 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 560ms both;
+}
+.hero-canvas::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, oklch(0.74 0.10 75 / 0.06), transparent 50%),
+    radial-gradient(circle at 80% 80%, oklch(0.32 0.06 255 / 0.05), transparent 50%);
+  pointer-events: none;
+}
+.hero-canvas .grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.5;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%);
+}
+
+/* —— Section —— */
+.section {
+  padding: var(--section-y) 0;
+  position: relative;
+}
+.section-head {
+  max-width: 720px;
+  margin: 0 auto 64px;
+  text-align: center;
+}
+.section-head .eyebrow { margin-bottom: 16px; display: block; }
+.section-head h2 {
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+}
+.section-head h2 .accent { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--ember-2); }
+.section-head p { font-size: var(--fs-lead); color: var(--ink-2); max-width: 580px; margin: 0 auto; }
+
+/* —— Three Agents —— */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+@media (max-width: 920px) { .agents-grid { grid-template-columns: 1fr; } }
+.agent-card {
+  background: var(--paper-2);
+  padding: 48px 36px;
+  position: relative;
+  transition: background 200ms ease;
+  min-height: 380px;
+  display: flex; flex-direction: column;
+}
+.agent-card:hover { background: var(--paper); }
+.agent-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 28px;
+}
+.agent-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  display: grid; place-items: center;
+  margin-bottom: 28px;
+  position: relative;
+}
+.agent-icon svg { width: 26px; height: 26px; }
+.agent-card[data-agent="planner"] .agent-icon svg { color: var(--agent-planner); }
+.agent-card[data-agent="executor"] .agent-icon svg { color: var(--agent-executor); }
+.agent-card[data-agent="reviewer"] .agent-icon svg { color: var(--agent-reviewer); }
+.agent-name {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.agent-name-en {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+.agent-desc {
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: auto;
+}
+.agent-tools {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 28px;
+}
+.agent-tools span {
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+/* —— Workflow / Loop —— */
+.loop-wrap {
+  max-width: 1160px; margin: 0 auto;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 56px clamp(24px, 4vw, 64px);
+  position: relative;
+}
+.loop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 880px) { .loop-grid { grid-template-columns: 1fr; gap: 40px; } }
+.loop-text h3 {
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+.loop-text p { color: var(--ink-2); font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+.loop-list { list-style: none; padding: 0; margin: 0; }
+.loop-list li {
+  display: flex; gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.loop-list li:first-child { border-top: 0; }
+.loop-list .step {
+  flex: none; width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  display: grid; place-items: center;
+  font-weight: 500;
+}
+.loop-list .copy strong { display: block; font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.loop-list .copy span { color: var(--ink-3); font-size: 13px; }
+
+/* —— Memory bus visualization —— */
+.bus {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.bus svg { width: 100%; height: 100%; overflow: visible; }
+
+/* —— Feature stack —— */
+.features {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.feature {
+  grid-column: span 6;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 36px;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+.feature.wide { grid-column: span 12; }
+.feature.third { grid-column: span 4; }
+.feature:hover { border-color: var(--line-2); }
+@media (max-width: 880px) {
+  .feature, .feature.wide, .feature.third { grid-column: span 12; }
+}
+.feature .label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ember-2);
+  margin-bottom: 14px;
+}
+.feature h3 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.feature p { color: var(--ink-2); font-size: 15px; line-height: 1.6; }
+
+/* —— Stats strip —— */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat {
+  padding: 48px 24px;
+  border-right: 1px solid var(--line);
+  text-align: center;
+}
+.stat:last-child { border-right: 0; }
+@media (max-width: 760px) {
+  .stat:nth-child(2n) { border-right: 0; }
+  .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+}
+.stat-num {
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  font-family: var(--font-mono);
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.stat-num .unit { font-size: 0.5em; color: var(--ink-3); margin-left: 4px; }
+.stat-label { font-size: 13px; color: var(--ink-3); }
+
+/* —— Quote / philosophy —— */
+.quote {
+  max-width: 880px; margin: 0 auto;
+  text-align: center;
+  padding: 0 var(--gutter);
+}
+.quote .body {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.quote .body em { color: var(--ember-2); font-style: italic; }
+.quote .who {
+  margin-top: 32px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* —— CTA —— */
+.cta {
+  text-align: center;
+  padding: var(--section-y) var(--gutter);
+  background: var(--ink);
+  color: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+.cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 30% 30%, oklch(0.74 0.10 75 / 0.10), transparent 40%),
+    radial-gradient(circle at 70% 80%, oklch(0.55 0.10 245 / 0.08), transparent 40%);
+}
+.cta-inner { position: relative; z-index: 1; }
+.cta h2 {
+  font-size: var(--fs-h1);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--paper);
+  margin-bottom: 20px;
+  max-width: 780px;
+  margin-left: auto; margin-right: auto;
+}
+.cta h2 .accent { font-family: var(--font-serif); font-style: italic; color: var(--ember); font-weight: 400; }
+.cta p {
+  color: oklch(0.78 0.008 80);
+  font-size: var(--fs-lead);
+  margin-bottom: 40px;
+  max-width: 560px; margin-left: auto; margin-right: auto;
+}
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.cta .btn-primary { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.cta .btn-ghost { color: var(--paper); border-color: oklch(0.4 0.01 260); }
+.cta .btn-ghost:hover { background: oklch(0.24 0.01 260); }
+
+/* —— Footer —— */
+.footer {
+  padding: 64px var(--gutter) 48px;
+  border-top: 1px solid var(--line);
+}
+.footer-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+@media (max-width: 760px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+.footer-brand p { color: var(--ink-3); font-size: 13px; max-width: 280px; margin-top: 16px; line-height: 1.6; }
+.footer h4 { font-size: 13px; font-weight: 500; margin-bottom: 16px; color: var(--ink-2); }
+.footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.footer li a { color: var(--ink-3); font-size: 13px; transition: color 160ms ease; }
+.footer li a:hover { color: var(--ink); }
+.footer-bottom {
+  max-width: 1160px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  flex-wrap: wrap; gap: 12px;
+}
+
+/* —— Hero showcase: live agent collaboration  —— */
+.live-stage {
+  position: absolute;
+  inset: 8% 6%;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+}
+.live-left { display: flex; flex-direction: column; gap: 12px; }
+.live-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px;
+  box-shadow: var(--shadow-1);
+  position: relative;
+}
+.live-card .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex: none;
+}
+.live-card[data-state="active"] {
+  border-color: var(--ember-2);
+  box-shadow: 0 0 0 3px oklch(0.74 0.10 75 / 0.12), var(--shadow-1);
+}
+.live-card[data-state="active"] .dot { background: var(--ember-2); animation: pulse-soft 1.5s ease-in-out infinite; }
+.live-card[data-state="done"] .dot { background: var(--success); }
+.live-card[data-state="idle"] .dot { background: var(--ink-4); }
+.live-card .name { font-weight: 500; }
+.live-card .role { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; }
+
+.live-right {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-1);
+}
+.live-right::before {
+  content: 'shared_memory.json';
+  display: block;
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.05em;
+}
+.live-right .k { color: var(--navy-2); }
+.live-right .s { color: var(--ember-2); }
+.live-right .n { color: var(--success); }
+.live-right .c { color: var(--ink-4); font-style: italic; }
+
+@media (max-width: 720px) {
+  .live-stage { grid-template-columns: 1fr; inset: 6%; }
+  .live-right { display: none; }
+}
+
+/* —— Print friendly —— */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== NAV ====== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="index.html" aria-label="Yuki home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l7 9 7-9M12 16v6"/></svg>
+      </span>
+      <span>Yuki</span>
+    </a>
+    <div class="nav-links">
+      <a href="#agents">三 Agent</a>
+      <a href="#how">协作流程</a>
+      <a href="#features">能力</a>
+      <a href="design.html">设计稿</a>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="nav-cta">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <a class="btn btn-primary" href="app.html">
+        体验 Demo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<header class="hero">
+  <span class="hero-eyebrow"><span class="dot"></span>Yuki · 多智能体个人成长助手 · v0.1 Alpha</span>
+  <h1 class="hero-title">
+    Three minds,<br/>
+    one <span class="accent">growth</span>.
+  </h1>
+  <p class="hero-sub">
+    规划师拆目标 · 执行官追进度 · 复盘师写洞察。<br/>
+    三个 AI Agent 协同工作，让每一天的成长被看见。
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="app.html">
+      开始一段成长
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <a class="btn btn-ghost" href="design.html">查看设计稿</a>
+  </div>
+  <div class="hero-meta"></div>
+
+  <!-- Live agent canvas -->
+  <div class="hero-canvas" aria-hidden="true">
+    <div class="grid-bg"></div>
+    <div class="live-stage">
+      <div class="live-left">
+        <div class="live-card" data-state="done" data-row="0">
+          <span class="dot"></span>
+          <span class="name">规划师</span>
+          <span class="role">Planner</span>
+        </div>
+        <div class="live-card" data-state="active" data-row="1">
+          <span class="dot"></span>
+          <span class="name">执行官</span>
+          <span class="role">Executor</span>
+        </div>
+        <div class="live-card" data-state="idle" data-row="2">
+          <span class="dot"></span>
+          <span class="name">复盘师</span>
+          <span class="role">Reviewer</span>
+        </div>
+        <div style="flex:1"></div>
+        <div style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3); padding-left:4px;">
+          <div>· 共享 Memory 同步中</div>
+          <div style="margin-top:4px;">· 当前周期：Day 12 / 14</div>
+        </div>
+      </div>
+      <div class="live-right" id="memStream">
+<span class="c">// shared state</span>
+<span class="k">goal</span>: <span class="s">"7 天复习线性代数"</span>,
+<span class="k">tasks</span>: [
+  { <span class="k">id</span>: <span class="n">3</span>, <span class="k">done</span>: <span class="n">true</span> },
+  { <span class="k">id</span>: <span class="n">4</span>, <span class="k">active</span>: <span class="n">true</span> },
+  ...
+],
+<span class="k">progress</span>: <span class="n">0.78</span>,
+<span class="k">blocker</span>: <span class="s">null</span>,
+<span class="c">// last event</span>
+<span class="k">→ executor</span>: <span class="s">"推送 第3章 阅读任务"</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ====== STATS ====== -->
+<section class="section" style="padding-top: 0;">
+  <div class="container-wide">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">+38<span class="unit">%</span></div>
+        <div class="stat-label">较单 Agent 任务完成率</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">86<span class="unit">%</span></div>
+        <div class="stat-label">目标达成满意度</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">50</div>
+        <div class="stat-label">场景评估集</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3</div>
+        <div class="stat-label">协作 Agent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== AGENTS ====== -->
+<section class="section" id="agents">
+  <div class="container-wide">
+    <div class="section-head">
+      <span class="eyebrow eyebrow-dot">三个 Agent · 一种秩序</span>
+      <h2>每个角色，<span class="accent">各司其职</span>。</h2>
+      <p>从大目标到每日行动再到周期反思，三个 Agent 用独立的 Prompt 与工具集，让每一步都更专业。</p>
+    </div>
+    <div class="agents-grid">
+      <article class="agent-card" data-agent="planner">
+        <div class="agent-num">01 / 战略家</div>
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div class="agent-name">规划师 Planner</div>
+        <div class="agent-name-en">Strategy &amp; decomposition</div>
+        <p class="agent-desc">
+          把"考研复习""学英语"这样模糊的大目标，拆解为具有时间锚点、优先级与依赖关系的任务树。
+        </p>
+        <div class="agent-tools">
+          <span>目标分析</span><span>任务生成</span><span>优先级排序</span>
+        </div>
+      </article>
+
+      <article class="agent-card" data-agent="executor">
+        <div class="agent-num">02 / 教练</div>
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </div>
+        <div class="agent-name">执行官 Executor</div>
+        <div class="agent-name-en">Daily push &amp; nudge</div>
+        <p class="agent-desc">
+          每日精准推送当日任务，监控进度，识别"卡了 3 天没动"的卡点并主动诊断原因。
+        </p>
+        <div class="agent-tools">
+          <span>进度监控</span><span>提醒推送</span><span>卡点诊断</span>
+        </div>
+      </article>
+
+      <article class="agent-card" data-agent="reviewer">
+        <div class="agent-num">03 / 顾问</div>
+        <div class="agent-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>
+        </div>
+        <div class="agent-name">复盘师 Reviewer</div>
+        <div class="agent-name-en">Insight &amp; suggestion</div>
+        <p class="agent-desc">
+          周期末读取所有 Memory，输出超越流水账的深度洞察 — "你的瓶颈在哪里，下周该怎么走"。
+        </p>
+        <div class="agent-tools">
+          <span>数据汇总</span><span>洞察提取</span><span>下周建议</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== HOW IT WORKS ====== -->
+<section class="section" id="how" style="background: var(--paper-3);">
+  <div class="container-wide">
+    <div class="section-head">
+      <span class="eyebrow eyebrow-dot">协作机制</span>
+      <h2>共享 Memory，<br/>让 Agent <span class="accent">真正合作</span>。</h2>
+      <p>三个 Agent 通过中央状态层传递信息 — 这是多智能体协作的核心。</p>
+    </div>
+
+    <div class="loop-wrap">
+      <div class="loop-grid">
+        <div class="loop-text">
+          <h3>从输入目标，到收获洞察。</h3>
+          <p>每一次 Agent 调用都会读写共享状态，下一个角色基于完整上下文继续工作。职责隔离让每个角色的 Prompt 更专注，结果更精准。</p>
+          <ul class="loop-list">
+            <li>
+              <span class="step">1</span>
+              <span class="copy"><strong>用户输入目标</strong><span>"7 天内复习完线性代数"</span></span>
+            </li>
+            <li>
+              <span class="step">2</span>
+              <span class="copy"><strong>规划师拆解为任务树</strong><span>写入 shared_memory.tasks</span></span>
+            </li>
+            <li>
+              <span class="step">3</span>
+              <span class="copy"><strong>执行官每日推进</strong><span>读取任务 → 推送 → 写回进度</span></span>
+            </li>
+            <li>
+              <span class="step">4</span>
+              <span class="copy"><strong>复盘师生成周报</strong><span>读取所有事件 → 洞察 → 给出下周建议</span></span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bus" aria-hidden="true">
+          <svg viewBox="0 0 400 400">
+            <defs>
+              <radialGradient id="memBg" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="oklch(0.74 0.10 75 / 0.18)"/>
+                <stop offset="100%" stop-color="oklch(0.74 0.10 75 / 0)"/>
+              </radialGradient>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="oklch(0.66 0.12 70)"/>
+              </marker>
+            </defs>
+            <!-- center memory -->
+            <circle cx="200" cy="200" r="160" fill="url(#memBg)"/>
+            <circle cx="200" cy="200" r="60" fill="var(--paper-2)" stroke="var(--ember-2)" stroke-width="1.5"/>
+            <text x="200" y="195" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="var(--ink-3)">SHARED</text>
+            <text x="200" y="210" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ink)" font-weight="500">MEMORY</text>
+
+            <!-- agent nodes -->
+            <g class="agent-node" transform="translate(200, 60)">
+              <circle r="32" fill="var(--paper)" stroke="var(--line-2)" stroke-width="1"/>
+              <circle r="32" fill="oklch(0.66 0.12 70 / 0.08)"/>
+              <text y="-2" text-anchor="middle" font-family="Inter" font-size="11" fill="var(--ink)" font-weight="500">规划师</text>
+              <text y="12" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-3)">Planner</text>
+            </g>
+
+            <g class="agent-node" transform="translate(340, 280)">
+              <circle r="32" fill="var(--paper)" stroke="var(--line-2)" stroke-width="1"/>
+              <circle r="32" fill="oklch(0.55 0.10 245 / 0.08)"/>
+              <text y="-2" text-anchor="middle" font-family="Inter" font-size="11" fill="var(--ink)" font-weight="500">执行官</text>
+              <text y="12" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-3)">Executor</text>
+            </g>
+
+            <g class="agent-node" transform="translate(60, 280)">
+              <circle r="32" fill="var(--paper)" stroke="var(--line-2)" stroke-width="1"/>
+              <circle r="32" fill="oklch(0.60 0.08 175 / 0.08)"/>
+              <text y="-2" text-anchor="middle" font-family="Inter" font-size="11" fill="var(--ink)" font-weight="500">复盘师</text>
+              <text y="12" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ink-3)">Reviewer</text>
+            </g>
+
+            <!-- arrows -->
+            <g fill="none" stroke="oklch(0.66 0.12 70)" stroke-width="1.2" stroke-dasharray="4 4" marker-end="url(#arr)">
+              <path d="M200,95 Q170,150 160,160" />
+              <path d="M315,250 Q260,210 245,205"/>
+              <path d="M85,250 Q140,210 158,205"/>
+              <path d="M240,160 Q280,200 315,250" stroke-dasharray="0"/>
+              <path d="M155,205 Q120,240 85,250" stroke-dasharray="0"/>
+              <path d="M168,160 Q150,100 200,90" stroke-dasharray="0"/>
+            </g>
+
+            <!-- pulses -->
+            <circle r="3" fill="oklch(0.66 0.12 70)">
+              <animateMotion dur="4s" repeatCount="indefinite" path="M200,95 Q170,150 160,160"/>
+            </circle>
+            <circle r="3" fill="oklch(0.55 0.10 245)">
+              <animateMotion dur="4s" begin="1.3s" repeatCount="indefinite" path="M240,160 Q280,200 315,250"/>
+            </circle>
+            <circle r="3" fill="oklch(0.60 0.08 175)">
+              <animateMotion dur="4s" begin="2.6s" repeatCount="indefinite" path="M155,205 Q120,240 85,250"/>
+            </circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FEATURES ====== -->
+<section class="section" id="features">
+  <div class="container-wide">
+    <div class="section-head">
+      <span class="eyebrow eyebrow-dot">完整能力</span>
+      <h2>从一个目标，<br/>到一段<span class="accent">闭环成长</span>。</h2>
+      <p>定目标、拆任务、日执行、周复盘 — Yuki 把碎片化的成长行为收束成可持续的循环。</p>
+    </div>
+
+    <div class="features">
+      <article class="feature wide">
+        <div class="label">⌘ &nbsp;OBJECTIVE TREE</div>
+        <h3>把"考研"变成今天可以做的事。</h3>
+        <p>规划师基于 LLM 分析你的目标语义，生成具有时间锚点、依赖关系与优先级的任务树。可调节颗粒度 — 从粗略大纲到细致分解，由你决定。</p>
+      </article>
+      <article class="feature">
+        <div class="label">⏱ &nbsp;DAILY PUSH</div>
+        <h3>每日清晰的下一步。</h3>
+        <p>执行官根据节奏推送当日任务，识别"卡了 3 天没动"的卡点，主动诊断原因 — 是任务过大，还是优先级错了？</p>
+      </article>
+      <article class="feature">
+        <div class="label">∑ &nbsp;WEEKLY REVIEW</div>
+        <h3>不只流水账，还有洞察。</h3>
+        <p>复盘师读取整周事件，输出节奏图、瓶颈分析和下周建议。不是"你完成了 12 个任务"，而是"你周三总是低产，建议把硬任务移到周一"。</p>
+      </article>
+      <article class="feature third">
+        <div class="label">∮ &nbsp;SHARED MEMORY</div>
+        <h3>透明的协作。</h3>
+        <p>所有状态可见可审。你可以看到每个 Agent 写了什么、读了什么。</p>
+      </article>
+      <article class="feature third">
+        <div class="label">⌬ &nbsp;BYO API KEY</div>
+        <h3>用你信任的模型。</h3>
+        <p>支持 Anthropic Claude、OpenAI、DeepSeek。Key 仅存浏览器，零中转。</p>
+      </article>
+      <article class="feature third">
+        <div class="label">◐ &nbsp;OFFLINE FIRST</div>
+        <h3>数据归你所有。</h3>
+        <p>所有 Memory 存于本地，可随时导出 JSON。无云端绑定。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== QUOTE ====== -->
+<section class="section">
+  <div class="quote">
+    <p class="body">"成为每个用户最专业、最温暖、最懂自己的 <em>AI 成长伙伴</em>。"</p>
+    <p class="who">— YUKI · PRODUCT VISION</p>
+  </div>
+</section>
+
+<!-- ====== CTA ====== -->
+<section class="cta">
+  <div class="cta-inner">
+    <h2>让每一天的<span class="accent">成长</span>，<br/>都被看见。</h2>
+    <p>开箱即用的 Demo 模式，或填入你自己的 API Key — 几秒钟内开始你的第一个目标。</p>
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="app.html">
+        进入 Yuki Demo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a class="btn btn-ghost" href="design.html">查看完整设计稿</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l7 9 7-9M12 16v6"/></svg>
+        </span>
+        <span>Yuki</span>
+      </a>
+      <p>基于多智能体协作的个人成长助手。开源、克制、温暖。</p>
+    </div>
+    <div>
+      <h4>产品</h4>
+      <ul>
+        <li><a href="app.html">Demo</a></li>
+        <li><a href="design.html">设计稿</a></li>
+        <li><a href="#features">能力</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>资源</h4>
+      <ul>
+        <li><a href="design.html#prd">PRD</a></li>
+        <li><a href="design.html#architecture">架构图</a></li>
+        <li><a href="design.html#metrics">指标</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>项目</h4>
+      <ul>
+        <li><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="#">License</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 YUKI</span>
+    <span>「让每一天的成长被看见。」</span>
+  </div>
+</footer>
+
+<script>
+// Nav scroll state
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 8);
+}, { passive: true });
+
+// Theme toggle
+const root = document.documentElement;
+const tt = document.getElementById('themeToggle');
+const saved = localStorage.getItem('yuki-theme');
+if (saved) root.setAttribute('data-theme', saved);
+tt.addEventListener('click', () => {
+  const cur = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', cur);
+  localStorage.setItem('yuki-theme', cur);
+});
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Live cards rotation
+const cards = document.querySelectorAll('.live-card');
+const states = ['done', 'active', 'idle'];
+let phase = 0;
+setInterval(() => {
+  phase = (phase + 1) % 3;
+  cards.forEach((c, i) => {
+    const stateIdx = (i - phase + 3) % 3;
+    c.setAttribute('data-state', states[stateIdx]);
+  });
+}, 2400);
+</script>
+</body>
+</html>
