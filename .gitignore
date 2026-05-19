@@ -4,10 +4,14 @@ node_modules/
 .pnp.js
 
 # Build outputs
-dist/
+# NOTE: dist/ is kept because it contains single-file deployable bundles
+# Users can download dist/*.html and double-click to use (no server needed)
 build/
 .next/
 out/
+
+# Generated PRD build artifacts intermediate files
+docs/_build_prd_docx.py.bak
 
 # Logs
 npm-debug.log*
@@ -39,6 +43,9 @@ Thumbs.db
 
 # Local upload working dirs
 uploads_copy/
+
+# Claude CLI local state (not source of truth)
+.claude/
 
 # Asset review manifest (内部工具产物)
 .asset-review-manifest.json

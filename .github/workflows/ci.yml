@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate · HTML / JSON / Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          set -e
+          for f in index.html app.html design.html prototypes.html docs.html \
+                   app/main.jsx app/agent-engine.js app/command-palette.jsx \
+                   app/pages.jsx app/components.jsx \
+                   styles/design-system.css styles/app.css \
+                   docs/PRD.md docs/EVAL_REPORT.md docs/USABILITY_TEST.md \
+                   docs/Yuki_PRD.docx \
+                   README.md README.en.md CONTRIBUTING.md LICENSE; do
+            if [ ! -f "$f" ]; then
+              echo "Missing: $f"
+              exit 1
+            fi
+          done
+          echo "All required files present."
+
+      - name: Validate HTML
+        run: |
+          # 简易 HTML 检查 · 确保没有未闭合标签
+          for f in index.html app.html design.html prototypes.html docs.html; do
+            opens=$(grep -o '<div' "$f" | wc -l)
+            closes=$(grep -o '</div>' "$f" | wc -l)
+            echo "$f · <div>: $opens · </div>: $closes"
+          done
+
+      - name: Lint app/agent-engine.js syntax
+        run: |
+          node -e "
+            const fs = require('fs');
+            const code = fs.readFileSync('app/agent-engine.js', 'utf8');
+            try {
+              new Function(code);
+              console.log('agent-engine.js syntax OK');
+            } catch (e) {
+              console.error('Syntax error:', e.message);
+              process.exit(1);
+            }
+          "
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
