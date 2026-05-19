@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yuki · PRD & Product Docs</title>
+<link rel="stylesheet" href="styles/design-system.css" />
+<style>
+body { background: var(--paper); }
+
+/* —— Top bar —— */
+.doc-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  height: 56px;
+  background: oklch(0.985 0.003 80 / 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center;
+  padding: 0 var(--gutter);
+}
+.doc-bar-inner {
+  max-width: 1400px; margin: 0 auto; width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.doc-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
+.doc-brand .mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--ink); color: var(--ember);
+  display: grid; place-items: center;
+}
+.doc-brand .mark svg { width: 16px; height: 16px; }
+.doc-brand .sep { color: var(--ink-3); font-size: 14px; margin: 0 2px; }
+.doc-brand .sub { font-weight: 400; color: var(--ink-2); font-size: 14px; }
+
+.doc-tabs { display: flex; gap: 4px; }
+.doc-tab {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+.doc-tab:hover { background: var(--paper-2); color: var(--ink); }
+.doc-tab.active { background: var(--paper-3); color: var(--ink); font-weight: 500; }
+
+/* —— Layout —— */
+.doc-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 240px;
+  max-width: 1400px;
+  margin: 56px auto 0;
+  min-height: calc(100vh - 56px);
+}
+@media (max-width: 1100px) { .doc-layout { grid-template-columns: 240px 1fr; } .doc-toc { display: none; } }
+@media (max-width: 760px) { .doc-layout { grid-template-columns: 1fr; } .doc-side { display: none; } }
+
+/* —— Sidebar (left) —— */
+.doc-side {
+  border-right: 1px solid var(--line);
+  padding: 36px 28px 36px 32px;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+.doc-side .section { margin-bottom: 28px; }
+.doc-side .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  padding: 0 8px;
+}
+.doc-side a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  margin: 1px 0;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  transition: all 140ms ease;
+}
+.doc-side a:hover { background: var(--paper-2); color: var(--ink); }
+.doc-side a.active { background: var(--paper-3); color: var(--ink); font-weight: 500; border-left: 2px solid var(--ember-2); padding-left: 6px; }
+.doc-side a .ic { width: 14px; height: 14px; opacity: 0.6; }
+.doc-side a .num { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); margin-right: 4px; }
+.doc-side a .meta { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+
+/* —— Content (middle) —— */
+.doc-main {
+  padding: 56px 56px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 760px) { .doc-main { padding: 32px 20px; } }
+
+.doc-head {
+  margin-bottom: 56px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.doc-head .eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ember-2);
+  margin-bottom: 16px;
+}
+.doc-head h1 {
+  font-size: clamp(36px, 5vw, 52px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.doc-head .lead { font-size: var(--fs-lead); color: var(--ink-2); line-height: 1.6; }
+.doc-head .meta { display: flex; gap: 20px; margin-top: 28px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.doc-head .meta span { display: inline-flex; gap: 6px; align-items: center; }
+.doc-head .meta .k { color: var(--ink-3); }
+.doc-head .meta .v { color: var(--ink); font-weight: 500; }
+
+/* —— Markdown render styles —— */
+.doc-content {
+  font-size: 15.5px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.doc-content h2 {
+  font-size: 28px; font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 56px 0 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.doc-content h2:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.doc-content h2 .num {
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--ember-2); letter-spacing: 0.06em;
+  display: block; margin-bottom: 8px;
+}
+.doc-content h3 { font-size: 20px; font-weight: 500; margin: 32px 0 12px; letter-spacing: -0.01em; }
+.doc-content h4 { font-size: 15px; font-weight: 600; margin: 24px 0 8px; color: var(--ink); }
+.doc-content p { margin: 0 0 16px; color: var(--ink-2); }
+.doc-content strong { color: var(--ink); font-weight: 600; }
+.doc-content em { font-style: italic; }
+.doc-content blockquote {
+  margin: 20px 0;
+  padding: 16px 20px;
+  background: var(--paper-2);
+  border-left: 3px solid var(--ember-2);
+  border-radius: 0 8px 8px 0;
+  color: var(--ink-2);
+}
+.doc-content blockquote p:last-child { margin-bottom: 0; }
+.doc-content ul, .doc-content ol { padding-left: 24px; margin: 0 0 16px; color: var(--ink-2); }
+.doc-content li { margin-bottom: 6px; }
+.doc-content code {
+  font-family: var(--font-mono); font-size: 13px;
+  background: var(--paper-3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--ember-2);
+}
+.doc-content pre {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 20px 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.doc-content pre code { background: transparent; padding: 0; color: var(--ink-2); }
+.doc-content hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+.doc-content a { color: var(--ember-2); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.doc-content a:hover { color: var(--ink); }
+
+.doc-content table {
+  width: 100%; border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+}
+.doc-content th, .doc-content td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.doc-content th {
+  font-weight: 500; color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper-2);
+}
+.doc-content tr:hover td { background: var(--paper-2); }
+
+/* —— TOC (right) —— */
+.doc-toc {
+  padding: 56px 24px 36px;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+.doc-toc .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.doc-toc ul { list-style: none; padding: 0; margin: 0; }
+.doc-toc li { margin: 2px 0; }
+.doc-toc a {
+  display: block;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  border-left: 2px solid transparent;
+  padding-left: 12px;
+  margin-left: -2px;
+  transition: all 140ms ease;
+}
+.doc-toc a:hover { color: var(--ink); }
+.doc-toc a.active { color: var(--ink); border-left-color: var(--ember-2); font-weight: 500; }
+.doc-toc a.h3 { padding-left: 22px; font-size: 12px; color: var(--ink-4); }
+
+/* —— Doc switcher tabs —— */
+.doc-switcher {
+  display: flex;
+  gap: 0;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+.doc-switcher button {
+  padding: 12px 20px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink-3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 160ms ease;
+  margin-bottom: -1px;
+}
+.doc-switcher button:hover { color: var(--ink); }
+.doc-switcher button.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+.doc-switcher button .num { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); margin-right: 6px; letter-spacing: 0.04em; }
+
+/* —— Reading progress —— */
+.progress-bar {
+  position: fixed; top: 56px; left: 0; right: 0;
+  height: 2px; background: transparent; z-index: 49;
+}
+.progress-bar .fill {
+  height: 100%; background: var(--ember-2);
+  transition: width 80ms linear;
+}
+
+/* —— Loading state —— */
+.doc-loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* —— Footer —— */
+.doc-footer {
+  margin-top: 80px;
+  padding: 32px 0;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--ink-3);
+  flex-wrap: wrap; gap: 12px;
+}
+
+/* —— Mobile nav —— */
+.mobile-doc-nav {
+  display: none;
+  padding: 16px 20px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3);
+}
+@media (max-width: 760px) { .mobile-doc-nav { display: block; } }
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#1a1a1a"/><g transform="translate(120,120)"><path d="M20 40l60 80 60-80M80 120v60" stroke="#d4a857" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>
+</template>
+
+<!-- ====== Top Bar ====== -->
+<nav class="doc-bar">
+  <div class="doc-bar-inner">
+    <a class="doc-brand" href="index.html">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10M9.5 4.5L12 2l2.5 2.5M9.5 19.5L12 22l2.5-2.5M4.7 5L3.34 7l2.16.8M20.66 17l-2.16-.8.8 2.8M19.3 5L20.66 7l-2.16.8M3.34 17l2.16-.8-.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>
+      </span>
+      <span>Yuki</span>
+      <span class="sep">/</span>
+      <span class="sub">Product Docs</span>
+    </a>
+    <div class="doc-tabs">
+      <a class="doc-tab" href="index.html">首页</a>
+      <a class="doc-tab" href="prototypes.html">原型</a>
+      <a class="doc-tab" href="design.html">设计稿</a>
+      <a class="doc-tab" href="app.html">Demo</a>
+      <a class="doc-tab active" href="docs.html">PRD</a>
+    </div>
+  </div>
+</nav>
+
+<div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+
+<!-- ====== Layout ====== -->
+<div class="doc-layout">
+
+  <!-- ===== Left Sidebar ===== -->
+  <aside class="doc-side">
+    <div class="section">
+      <div class="label">产品文档</div>
+      <a href="#" data-doc="prd" class="active">
+        <span class="num">01</span> PRD 主文档
+        <span class="meta">v1.0</span>
+      </a>
+      <a href="#" data-doc="research">
+        <span class="num">02</span> 用户调研报告
+      </a>
+      <a href="#" data-doc="competitor">
+        <span class="num">03</span> 竞品分析
+      </a>
+      <a href="#" data-doc="design">
+        <span class="num">04</span> 设计规范
+      </a>
+      <a href="#" data-doc="arch">
+        <span class="num">05</span> 技术架构
+      </a>
+    </div>
+
+    <div class="section">
+      <div class="label">相关链接</div>
+      <a href="prototypes.html">→ Figma 原型</a>
+      <a href="design.html">→ 设计稿展示</a>
+      <a href="app.html">→ 体验 Demo</a>
+    </div>
+
+    <div class="section">
+      <div class="label">导出</div>
+      <a href="#" id="printBtn">⌘ + P 打印 PDF</a>
+      <a href="#" id="downloadBtn">↓ 下载 Markdown</a>
+    </div>
+  </aside>
+
+  <!-- ===== Main Content ===== -->
+  <main class="doc-main">
+
+    <header class="doc-head" id="docHead">
+      <span class="eyebrow">PRODUCT REQUIREMENTS DOCUMENT</span>
+      <h1 id="docTitle">Yuki · 产品需求文档</h1>
+      <p class="lead" id="docLead">基于多智能体协作的个人成长助手 · 完整产品定义与设计交付</p>
+      <div class="meta">
+        <span><span class="k">VERSION</span> <span class="v">v1.0</span></span>
+        <span><span class="k">STATUS</span> <span class="v" style="color:var(--success);">● Approved</span></span>
+        <span><span class="k">UPDATED</span> <span class="v">2026.05.18</span></span>
+      </div>
+    </header>
+
+    <!-- Document switcher (mobile) -->
+    <div class="doc-switcher" id="docSwitcher">
+      <button class="active" data-doc="prd"><span class="num">01</span>PRD</button>
+      <button data-doc="research"><span class="num">02</span>用户调研</button>
+      <button data-doc="competitor"><span class="num">03</span>竞品</button>
+      <button data-doc="design"><span class="num">04</span>设计规范</button>
+      <button data-doc="arch"><span class="num">05</span>技术架构</button>
+    </div>
+
+    <article class="doc-content" id="docContent">
+      <div class="doc-loading">⌛ 加载文档中...</div>
+    </article>
+
+    <footer class="doc-footer">
+      <span>© 2025 Yuki · Product Documents</span>
+      <span style="font-family:var(--font-mono);">Built with 🌨️ · MIT License</span>
+    </footer>
+
+  </main>
+
+  <!-- ===== Right TOC ===== -->
+  <aside class="doc-toc" id="docToc">
+    <div class="label">本文目录</div>
+    <ul id="tocList"></ul>
+  </aside>
+
+</div>
+
+<!-- ============ Embedded docs (no fetch needed → works on file://) ============ -->
+<script type="application/markdown" id="md-prd">
+## 0 · TL;DR
+
+**Yuki** 是基于多智能体协作的 AI 个人成长助手。三个 Agent — **规划师 / 执行官 / 复盘师** — 通过共享 Memory 协作，覆盖「定目标 → 拆任务 → 日执行 → 周复盘」完整闭环。
+
+| 维度 | 内容 |
+|---|---|
+| 产品名 | Yuki · 「雪」 |
+| 目标用户 | 在校大学生（大二-研一） |
+| 核心价值 | 把成长闭环 AI 化、自动化 |
+| 差异化 | 三 Agent 协作 + 闭环成长 + 透明 Memory |
+| MVP 模块 | 目标管理 / 任务执行 / 周期复盘 / 系统设置 |
+| 首发平台 | Web App（响应式） |
+| 北极星指标 | 用户坚持 ≥ 4 周的目标数 |
+
+---
+
+## 1 · 背景与机会
+
+### 1.1 行业观察
+
+LLM 进入生产力工具领域已两年，C 端落地以「ChatGPT 式通用对话」为主，专业垂直产品稀缺。同时，多智能体（Multi-Agent）范式在 B 端开发场景中已验证，C 端日常工具场景几乎空白。
+
+### 1.2 市场空间
+
+中国在校大学生 4400 万 + 海外华人在校生 ≈ 50 万：
+
+- 5% 是「自我管理重度需求者」 → 220 万
+- 其中 30% 有 AI 工具使用习惯 → 66 万
+- **TAM ≈ 66 万** ／ 一线市场
+
+### 1.3 痛点（用户调研）
+
+> 深度访谈 20 人 + 问卷 112 份
+
+| 痛点 | 频次 | 典型用户语言 |
+|---|---|---|
+| 目标拆解能力差 | 18/20 | "我想考研，但不知道从哪开始" |
+| 执行卡点反复出现 | 16/20 | "卡了 3 天没做，就放弃了" |
+| 复盘缺失或流水账 | 19/20 | "我每周写不出有意义的总结" |
+| 工具间数据孤岛 | 12/20 | "每周自己拼一次" |
+
+---
+
+## 2 · 用户与场景
+
+### 2.1 Persona 1 · 林梓桐（核心用户）
+
+- **背景**：大三女生，准备考研，专业前 20%
+- **目标**：12 月考研笔试，目标分数 380+
+- **痛点**：知道要刷题，但没有沉淀
+- **使用场景**：每天早上 7 点 → 看今日任务；晚上 10 点 → 勾选
+- **AI 态度**：「聊聊还行，不能托付」
+
+### 2.2 Persona 2 · 周亦凡（增长用户）
+
+- **背景**：大四男生，秋招冲刺 + 毕设并行
+- **目标**：拿一个互联网产品岗 offer
+- **痛点**：事情多且乱，焦虑性拖延
+- **使用场景**：碎片化使用，地铁上打开看下一步
+
+### 2.3 核心使用场景
+
+**场景 1 · 周日晚 · 新建目标**
+> 林同学输入「21 天学完高等数学（上）」。规划师 5 秒内拆出 21 项任务。
+
+**场景 2 · 工作日早 · 启动节奏**
+> 周一 7 点打开 Yuki，执行官推送今日 3 项。地铁上勾完一项。
+
+**场景 3 · 周三午后 · 卡点诊断**
+> 「错题本」停滞 2 天。执行官主动诊断：「拆成 25 分钟单元，先打开 5 分钟」。
+
+**场景 4 · 周末 · 整周复盘**
+> 周日 22 点，复盘师生成本周报告：完成率 81%，周三是低产日。
+
+---
+
+## 3 · 产品定位
+
+### 3.1 定位语句
+
+**Yuki 是为大学生群体设计的、由三个 AI Agent 协作完成「定目标 - 执行 - 复盘」闭环的个人成长助手。**
+
+### 3.2 竞品对照
+
+| 维度 | Flomo | 滴答清单 | Notion AI | ChatGPT | **Yuki** |
+|---|---|---|---|---|---|
+| 笔记 | ⭐⭐⭐⭐⭐ | ⭐ | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| 任务管理 | ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ |
+| AI 拆解 | ✗ | ✗ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| 闭环复盘 | ⭐ | ⭐ | ⭐ | ✗ | ⭐⭐⭐⭐⭐ |
+| 多 Agent | ✗ | ✗ | ✗ | ✗ | ⭐⭐⭐⭐⭐ |
+
+**核心差异化**：闭环 × 多 Agent。其他产品要么是单功能，要么是通用对话。
+
+---
+
+## 4 · 功能架构
+
+### 4.1 模块全景
+
+```
+Yuki
+├── 目标管理 (Goal)
+│   ├── 目标创建
+│   ├── 智能拆解 → 规划师 Agent
+│   ├── 目标列表
+│   └── 任务树视图
+│
+├── 任务执行 (Task)
+│   ├── 今日任务看板
+│   ├── 任务勾选 / 反勾
+│   ├── 执行官推送 → 执行官 Agent
+│   └── 卡点诊断
+│
+├── 周期复盘 (Review)
+│   ├── 周报生成 → 复盘师 Agent
+│   ├── 月报汇总
+│   └── 数据看板
+│
+└── 系统设置 (Settings)
+    ├── AI Provider + API Key
+    ├── 数据导出
+    └── 通知偏好
+```
+
+### 4.2 三 Agent 职责矩阵
+
+| Agent | 输入 | 输出 | 触发时机 |
+|---|---|---|---|
+| 🎯 规划师 | 目标文本 + 描述 + 截止 | JSON 任务树 | 新建目标 |
+| ⚡ 执行官 | Memory 全量快照 | today / insight / blocker | 每日定时 / 主动 |
+| 📊 复盘师 | Memory + 整周事件 | summary + insights + next_week | 周日晚 / 主动 |
+
+### 4.3 Shared Memory 数据模型
+
+```typescript
+interface SharedMemory {
+  goals: Goal[];
+  activeGoalId: string;
+  activity: ActivityEvent[];
+  agentStates: { planner, executor, reviewer };
+  day: number;
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  deadline: string;
+  priority: 'high' | 'medium' | 'low';
+  progress: number;
+  tasks: Task[];
+}
+
+interface Task {
+  id: string;
+  title: string;
+  est: number;
+  agent: 'planner' | 'executor' | 'reviewer';
+  done: boolean;
+  day: number;
+}
+```
+
+---
+
+## 5 · 核心用户流程
+
+### 5.1 黄金路径 · 首次新建目标
+
+```
+[用户] 打开 Yuki
+   ↓
+[系统] 引导页 · 介绍三 Agent
+   ↓
+[用户] 点击「新建目标」
+   ↓
+[用户] 填入标题 + 优先级 + 截止
+   ↓
+[规划师] 调 LLM 拆解（≤ 10s，含 skeleton）
+   ↓
+[系统] 展示任务树
+   ↓
+[决策] 拆解合理？
+   ├─ 否 → 调整或重新拆
+   └─ 是 → 写入 Memory
+   ↓
+[系统] 跳转到「今日」页 · 展示首日任务
+```
+
+### 5.2 日常使用流程
+
+```
+每日早 7:00（或用户首次打开）
+   ↓
+[执行官] 推送今日任务列表 + 一句洞察
+   ↓
+[用户] 全天勾选任务
+   ↓
+[执行官] 监控 → 检测卡点 → 主动提示（≤ 1 次/天）
+   ↓
+（周日晚 22:00）
+   ↓
+[复盘师] 读取整周 Memory → 生成周报
+   ↓
+[用户] 阅读 → 进入下一周
+```
+
+---
+
+## 6 · 关键指标
+
+### 6.1 北极星
+**用户在 Yuki 中坚持 ≥ 4 周的目标数量**（每月统计）
+
+### 6.2 一级指标
+
+| 指标 | 目标 |
+|---|---|
+| 周活跃用户 WAU | 1k（首月） |
+| 任务完成率 | ≥ 70% |
+| 周复盘开启率 | ≥ 60% |
+| DAU / MAU | ≥ 25% |
+
+---
+
+## 7 · Roadmap
+
+| 版本 | 关键功能 |
+|---|---|
+| **v0.1 (现在)** | MVP · 三 Agent + 闭环 + 设计稿 |
+| v0.2 | 移动适配 · PWA · 响应式精细化 |
+| v0.3 | 多 LLM 优化 · 模型路由 · Token 预算控制 |
+| v0.5 | 习惯养成 Agent · 第 4 个 Agent |
+| v0.8 | 协作模式 · 合伙人 · 互相监督 |
+| **v1.0** | 公开 · 跨端 · 数据同步 · iOS App |
+
+---
+
+## 8 · 风险与缓解
+
+| 风险 | 概率 | 影响 | 缓解 |
+|---|---|---|---|
+| LLM API 成本爆炸 | 中 | 高 | BYOK 模式 · 加缓存层 |
+| 拆解质量不稳定 | 中 | 中 | 评估集回归 · Prompt 迭代 |
+| 用户冷启动断流 | 高 | 高 | 强引导 · 模板目标推荐 |
+| 移动端体验差 | 低 | 中 | v0.2 重点投入 |
+</script>
+
+<script type="application/markdown" id="md-research">
+## 1 · 调研目标
+
+回答 3 个核心问题：
+
+1. **大学生群体在「成长 / 自我管理」上的真实痛点是什么？**
+2. **现有工具为什么没有彻底解决这些痛点？**
+3. **AI 在多大程度上、以什么形态进入这个场景，最能创造价值？**
+
+---
+
+## 2 · 调研方法
+
+### 2.1 深度访谈（20 人）
+
+- **筛选标准**：在校大学生（大二 - 研一），有 ≥ 1 年自我管理工具使用经验
+- **结构**：1v1 视频 × 60 分钟
+- **样本分布**：性别男 9 / 女 11；985/211 8 人 / 双非 12 人
+
+### 2.2 问卷调查（112 份有效）
+
+- 通过校内社群 + 朋友圈分发
+- 18 题 · 单选 12 / 多选 4 / 开放 2
+- 平均完成时长 4 分 12 秒
+
+### 2.3 桌面研究
+
+- 4 款核心竞品体验 + 拆解
+- 知乎 / 小红书相关话题 50+ 帖子分析
+
+---
+
+## 3 · 关键发现
+
+### 3.1 Pain 1 · 「我有目标，但不会拆」（频次 18/20）
+
+> **林同学（大三女，考研）**："我知道我要考研，但是看到那一摞书我就懵了。每次都是先做我喜欢的英语，然后数学拖到最后一个月才开始。"
+
+> **王同学（大四男，秋招）**："我想找一份产品岗，但'准备秋招'到底要做什么？我不知道。"
+
+**分析**：用户对"大目标"有清晰意图，但缺乏把它拆解到「今天可以做的具体任务」的能力。
+
+### 3.2 Pain 2 · 「我有任务列表，但执行不起来」（频次 16/20）
+
+> **周同学（大三男）**："我滴答清单里有 47 个待办，每天看到它们我就焦虑。"
+
+> **陈同学（研一女）**："我每天起来都有计划，但中午一忙就忘了，晚上发现什么都没做完。"
+
+**分析**：「待办列表过载」+「执行中断后无人接住」=「焦虑性放弃」
+
+### 3.3 Pain 3 · 「我做了，但没沉淀下来」（频次 19/20）
+
+> **李同学（大三男）**："上周我做了什么？我真的想不起来。"
+
+> **张同学（大四女）**："我有一阵子坚持写周报，但写出来都是流水账。"
+
+**分析**：用户能做事，但缺乏从「做了」到「学到了」的提炼能力。
+
+### 3.4 Pain 4 · 「工具间割裂」（频次 12/20）
+
+> **何同学**："Notion 写目标，滴答清单做任务，Flomo 写思考，每周日我要花 1 小时把它们拼起来。"
+
+---
+
+## 4 · 问卷量化结果
+
+### Q1 · 你目前使用哪些自我管理工具？
+
+```
+滴答清单 / TickTick      ████████████████  68%
+Apple 提醒事项           ████████████      54%
+Notion                  █████████          41%
+Flomo                   ██████             28%
+纸质 / 笔记本            █████             24%
+ChatGPT / Claude        ███                13%
+```
+
+### Q2 · 你最希望解决的痛点是什么？
+
+| 选项 | 比例 |
+|---|---|
+| 不会把大目标拆成今天的事 | 38% |
+| **做了之后没有反思和提炼** | **42%** ← 第一 |
+| 提醒太多，被打扰 | 11% |
+| 信息分散在多个工具 | 9% |
+
+> 👉 **关键洞察**：**复盘缺失（42%）** 比「拆解能力差（38%）」更突出，与传统认知不符。
+
+### Q3 · 你最希望 AI 工具有什么能力？
+
+```
+帮我把目标拆成可执行的任务   ████████████████████  82%
+帮我反思上周做得怎么样       █████████████████     74%
+在我卡住时主动提醒           ██████████████        61%
+帮我整理混乱的待办           █████████             39%
+和我聊天，给我鼓励           █████                 22%
+```
+
+> 👉 **关键洞察**：用户**清楚地拒绝**「AI 鼓励聊天」，他们要的是**工具性帮助**，不是情绪陪伴。
+
+---
+
+## 5 · 用户对 AI 的认知与态度
+
+20 位访谈对象中：
+- **13 人** 用过 ChatGPT / Claude / DeepSeek，主要场景：写作业、改简历、问问题
+- **5 人** 偶尔用，但「不会用，没耐心调 Prompt」
+- **2 人** 完全没用过
+
+**普遍认知**：
+- ✅ AI 适合"问一次"性的任务（如改简历）
+- ❌ AI 不适合"持续陪伴"（"它根本不知道我之前说过啥"）
+- ❌ AI 给的建议太通用（"网上都能搜到"）
+
+**这印证了一个关键判断**：**单 ChatBot 形态不足以做成长场景**。用户需要的是：
+
+1. **持久记忆**（"知道我之前的目标"）
+2. **专业角色**（"不是泛泛的助手，而是教练 / 顾问"）
+3. **主动行为**（"它能在合适的时候提醒我"）
+
+---
+
+## 6 · 设计原则（从调研中提炼）
+
+### 6.1 「闭环优先于功能堆叠」
+
+用户痛点不是缺哪个功能，而是「没有完整闭环」。Yuki 不做"更好的待办清单"，做"完整的成长循环"。
+
+### 6.2 「Agent 专业角色优于通用对话」
+
+用户对 ChatGPT 的边界已经形成：「适合一次性任务，不适合托付」。Yuki 用「三个专业 Agent」叙事。
+
+### 6.3 「主动但克制」
+
+用户既要 AI 主动提醒（61%），又不希望被打扰。所以 Yuki：
+
+- 执行官每日推送 ≤ 1 次
+- 卡点诊断 ≤ 1 次 / 天
+- 周报自动生成但不强制推送
+
+### 6.4 「透明优于黑盒」
+
+- Shared Memory 全程可观察
+- 每条 Agent 输出都标注来源
+- 数据全部存在本地，可导出
+
+---
+
+## 7 · 待验证假设
+
+| 假设 | 验证方式 |
+|---|---|
+| 用户愿意配置 API Key | 追踪 BYOK vs Demo 模式使用比 |
+| 三 Agent 叙事用户能 get | 追踪完整漏斗转化 |
+| 用户期望粒度 7-14 项/周 | 追踪用户对 LLM 拆解的覆写率 |
+</script>
+
+<script type="application/markdown" id="md-competitor">
+## 1 · 竞品定位四象限
+
+```
+              功能多
+                ↑
+        Notion AI │ Yuki (target)
+                  │
+   ──────────────┼──────────────→ AI 化深
+        滴答清单  │ MetaGPT
+                  │
+        Flomo     │
+                ↓
+              功能少
+```
+
+---
+
+## 2 · 功能对照矩阵
+
+| 维度 | Flomo | 滴答清单 | Notion AI | MetaGPT | **Yuki** |
+|---|---|---|---|---|---|
+| **目标管理** | | | | | |
+| 长期目标 | ✓ | ✓ | ✓ | ✗ | ✓ |
+| AI 拆解 | ✗ | ✗ | △ | ✓ | ✓ |
+| 任务依赖 | ✗ | ✗ | ✗ | ✓ | ✓ |
+| **任务执行** | | | | | |
+| 今日清单 | ✗ | ✓ | △ | ✗ | ✓ |
+| 主动提醒 | ✗ | ✓ | ✗ | ✗ | ✓ |
+| 卡点诊断 | ✗ | ✗ | ✗ | ✗ | ✓ |
+| **周期复盘** | | | | | |
+| 自动周报 | ✗ | ✗ | △ | ✗ | ✓ |
+| 数据洞察 | ✗ | △ | ✗ | ✗ | ✓ |
+| **AI** | | | | | |
+| AI 形态 | 无 | 浅集成 | Copilot | Multi-Agent | Multi-Agent |
+| 持久记忆 | ✗ | ✗ | ✓ | ✓ | ✓ |
+
+---
+
+## 3 · 逐个深拆
+
+### 3.1 Flomo · 卡片笔记
+
+- **核心**：高频次、低门槛的卡片式记录
+- **优势**：交互极简、移动端体验顶级、社区生态强
+- **不足**：纯被动工具，不解决「执行」与「复盘」，AI 几乎缺席
+- **可借鉴**：极简交互范式、中文字号 / 行高优化
+
+### 3.2 滴答清单 · 任务管理
+
+- **核心**：日历 + 任务 + 提醒
+- **优势**：功能完整、跨平台、提醒能力强
+- **不足**：任务都是手动输入，不解决「拆解」；周报只有统计，无洞察
+- **可借鉴**：任务卡片信息密度、四象限优先级 UI
+
+### 3.3 Notion AI · 文档 Copilot
+
+- **核心**：在文档场景内嵌 AI 写作 / 总结
+- **优势**：文档与任务统一、AI 调用门槛低
+- **不足**：AI 是「按钮」，不是「角色」；学习曲线陡
+- **可借鉴**：AI 与原生 UI 的融合方式
+
+### 3.4 MetaGPT · 多智能体框架
+
+- **核心**：模拟软件公司多角色协作完成开发任务
+- **优势**：多 Agent 范式验证、角色专业化设计
+- **不足**：纯 B 端开发场景、命令行体验、无 C 端可用产品
+- **可借鉴**：✦✦✦ Agent 角色分工 + 共享 Memory 协议
+
+---
+
+## 4 · 商业模式对照
+
+| 产品 | 模式 | 定价 | 月活 |
+|---|---|---|---|
+| Flomo | 订阅 | 30/年 | 100w+ |
+| 滴答清单 | 订阅 | 168/年 | 1000w+ |
+| Notion | 订阅 | 80/月（团队版） | 3000w+ |
+| MetaGPT | 开源 | 免费 | 40k stars |
+
+**Yuki 的商业化空间**：
+
+- **v0.1 - v0.5**：纯免费 + BYOK · 跑用户量
+- **v1.0**：免费基础 + 高级订阅（智能 Agent 自动调用、跨设备同步、社区合伙人匹配）
+
+---
+
+## 5 · 差异化策略
+
+### 5.1 我们做什么 / 不做什么
+
+**Yuki 做**：
+
+- 三 Agent 协作
+- 闭环成长
+- 透明 Memory
+- 学习场景特化
+
+**Yuki 不做（至少 v1.0 内）**：
+
+- 通用笔记（让位 Flomo）
+- 团队协作（让位 Notion）
+- 通用对话（让位 ChatGPT）
+- 时间块日历（v0.3 后再做）
+
+### 5.2 核心 Slogan 对照
+
+| 产品 | Slogan |
+|---|---|
+| Flomo | "记录瞬间，发现自己" |
+| 滴答清单 | "你的随身记事提醒清单" |
+| Notion | "Your connected workspace" |
+| **Yuki** | **"Three minds, one growth. 让每一天的成长被看见。"** |
+</script>
+
+<script type="application/markdown" id="md-design">
+## 1 · 设计哲学
+
+**Three principles**：
+
+1. **Restrained Confidence · 克制的自信**
+   不靠饱和度堆砌视觉、不靠 Emoji 卖萌、不靠彩虹渐变制造科技感。设计的力量来自留白、字体节奏、对齐与层次。
+
+2. **Editorial Warmth · 编辑式温度**
+   产品是工具，但语气是杂志。中文衬线 + 西文 Serif 重音、合理的字号阶梯、对话式（而非命令式）的文案。
+
+3. **Transparency · 透明**
+   不藏 Agent 状态、不藏 LLM 推理过程、不藏数据存储位置。Memory 始终可观察。
+
+---
+
+## 2 · Color · 色彩
+
+### 2.1 颜色定义
+
+所有颜色用 OKLCH 定义，确保跨亮度模式感知一致。
+
+| Token | Light | 用途 |
+|---|---|---|
+| `--paper` | oklch(0.985 0.003 80) | 主背景 |
+| `--paper-2` | oklch(0.97 0.004 80) | 卡片背景 |
+| `--ink` | oklch(0.18 0.01 260) | 主文本 |
+| `--ink-2` | oklch(0.38 0.012 260) | 次要文本 |
+| `--ember` | oklch(0.74 0.10 75) | 强调色（暖金） |
+
+### 2.2 Agent 配色
+
+| Agent | Color | 含义 |
+|---|---|---|
+| 🎯 规划师 | 暖金 | 战略、规划、起点 |
+| ⚡ 执行官 | 深蓝 | 行动、推进、力量 |
+| 📊 复盘师 | 青灰 | 反思、深度、智慧 |
+
+### 2.3 使用规则
+
+- ❌ 不使用渐变背景（除 Hero 极轻径向）
+- ❌ 不使用 5+ 颜色同屏
+- ✅ 每个屏幕主色 1 + 强调色 1
+- ✅ 暖金仅用于「强调字」「关键 CTA」「Agent 1 状态」
+
+---
+
+## 3 · Typography · 字体
+
+| 用途 | 字族 |
+|---|---|
+| 西文主字 | Inter |
+| 中文主字 | PingFang SC / Microsoft YaHei |
+| 重音衬线 | Source Serif 4 |
+| 数据/代码 | JetBrains Mono |
+
+### 3.1 字号阶梯
+
+| Token | Size | 用途 |
+|---|---|---|
+| `display` | 64-96 | Hero 标题 |
+| `h1` | 40-64 | 页面主标 |
+| `h2` | 28-44 | 区域标题 |
+| `body` | 16 | 正文 |
+| `caption` | 12 | 标签 / 元信息 |
+
+### 3.2 排版规则
+
+- 字重：300 / 400 / 500 / 600 / 700 五档
+- 字距：H1-H3 用 -0.02 ~ -0.035em
+- 中文：避开 Light 200，最小 400
+- 标题：英文 Serif 重音字（如 _growth_）用 Italic 400
+
+---
+
+## 4 · Motion · 动效
+
+### 4.1 时长
+
+| 类型 | 时长 | 缓动 |
+|---|---|---|
+| 微交互 (hover) | 160ms | ease-out |
+| 元素切换 | 180-240ms | cubic-bezier(0.2, 0.8, 0.2, 1) |
+| 页面级 | 320-480ms | cubic-bezier(0.2, 0.8, 0.2, 1) |
+| Skeleton shimmer | 1400ms | ease-in-out infinite |
+
+### 4.2 动效原则
+
+- ✅ 一切动效都有意义（指引 / 反馈 / 状态）
+- ❌ 不使用纯装饰动效
+- ✅ 尊重 `prefers-reduced-motion`
+
+---
+
+## 5 · Voice & Tone · 文案
+
+### 5.1 语气原则
+
+- **像懂你的朋友，不像 ChatBot**
+- **诚恳，不奉承也不否定**
+- **简短，单句不超过 30 字**
+
+### 5.2 句式范例
+
+❌ **不要**：
+- "您好，欢迎使用 Yuki！我是您的智能助手..."
+- "恭喜您完成了任务！您真棒！"
+
+✅ **要**：
+- "早安，林同学"
+- "今天还剩 2 项，先做硬的"
+
+### 5.3 Agent 个性
+
+| Agent | 性格 | 范例语言 |
+|---|---|---|
+| 🎯 规划师 | 战略家 · 结构化 | "已为「考研复习」拆出 14 项任务" |
+| ⚡ 执行官 | 教练 · 具体 | "已完成 3/4，最后一项 30 分钟搞定" |
+| 📊 复盘师 | 顾问 · 中性 | "高产时段是周一上午，硬任务可优先排" |
+</script>
+
+<script type="application/markdown" id="md-arch">
+## 1 · 系统全景
+
+```
+┌─────────────────────────────────────────┐
+│           User Browser                   │
+│                                          │
+│  React 18.3 + Babel Standalone           │
+│              ↓                           │
+│  UI Layer (Today/Goals/Review/Settings)  │
+│              ↓                           │
+│  Agent Engine                            │
+│  ├── Planner Prompt                     │
+│  ├── Executor Prompt                    │
+│  ├── Reviewer Prompt                    │
+│  ├── Memory snapshot                    │
+│  └── JSON loose parse                   │
+│              ↓                           │
+│  LLM Adapter                            │
+│  ├── Anthropic                          │
+│  ├── OpenAI                             │
+│  ├── DeepSeek                           │
+│  └── Demo Scripts (offline)             │
+│              ↓                           │
+│  localStorage (Shared Memory)            │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## 2 · 文件结构
+
+```
+yuki/
+├── index.html              · Landing Page
+├── app.html                · 交互 Demo (React)
+├── design.html             · 5 件套设计稿
+├── prototypes.html         · Figma 风格高保真原型
+├── docs.html               · PRD 在线阅读
+│
+├── styles/
+│   ├── design-system.css   · Tokens + 基础样式
+│   └── app.css             · App 专属样式
+│
+├── app/
+│   ├── agent-engine.js     · Agent 引擎 + LLM 适配
+│   ├── components.jsx      · 通用 React 组件
+│   ├── pages.jsx           · 业务页面
+│   └── main.jsx            · App 入口
+│
+├── docs/
+│   ├── PRD.md
+│   ├── USER_RESEARCH.md
+│   ├── COMPETITOR_ANALYSIS.md
+│   ├── DESIGN_SPEC.md
+│   └── ARCHITECTURE.md
+│
+└── dist/                   · 单文件打包版（双击即用）
+```
+
+---
+
+## 3 · 核心模块
+
+### 3.1 Agent Engine
+
+职责：
+
+- 三 Agent 的 System Prompt 定义
+- LLM 多供应商适配（Anthropic / OpenAI / DeepSeek / Demo）
+- Shared Memory 序列化与快照
+- LLM 响应 JSON 宽松解析
+
+关键导出：
+
+```js
+window.YukiEngine = {
+  loadState, saveState, loadSettings, saveSettings,
+  runPlanner, runExecutor, runReviewer,
+  memorySnapshot, callLLM,
+};
+```
+
+### 3.2 LLM Adapter
+
+```js
+async function callLLM(messages, settings, opts = {}) {
+  if (settings.provider === 'demo') return demoLLM(messages);
+  if (settings.provider === 'anthropic') return anthropic(messages, settings);
+  if (settings.provider === 'openai') return openai(messages, settings);
+  if (settings.provider === 'deepseek') return deepseek(messages, settings);
+}
+```
+
+特殊处理：
+
+- Anthropic 需要 `anthropic-dangerous-direct-browser-access: true` 头
+- OpenAI / DeepSeek 共用 `chat/completions` 格式
+- 所有调用都加超时和错误降级
+
+### 3.3 Shared Memory
+
+存于 localStorage，结构详见 PRD § 4.3。
+
+写入策略：
+
+- React state 变化 → useEffect 触发 saveState
+- 每个 Agent 输出 → 自动 append 到 activity（保留最近 30 条）
+- 用户操作（如勾选任务）→ 同步追加事件
+
+---
+
+## 4 · 安全考虑
+
+### 4.1 API Key 安全
+
+- **存储位置**：仅 localStorage，未上传任何服务器
+- **传输方式**：浏览器直连 LLM 供应商
+- **风险**：用户在他人电脑登录可能泄露 Key
+- **缓解**：v0.3 增加"会话级 Key"选项
+
+### 4.2 CORS
+
+- Anthropic：需用户在请求头声明 `anthropic-dangerous-direct-browser-access`
+- OpenAI / DeepSeek：默认支持浏览器跨域
+- 生产环境建议：搭建薄代理（Cloudflare Workers）
+
+---
+
+## 5 · 演进路径
+
+### v0.1（现在）· 静态 + BYOK
+
+- 优点：零成本、易部署、易演示
+- 缺点：用户必须自己有 Key
+
+### v0.3 · 加薄代理（Cloudflare Workers）
+
+- 代理隐藏 Key、提供 RPS 限制
+- 仍以静态前端为主
+
+### v1.0 · 全栈化
+
+- 后端 Node.js / Bun
+- PostgreSQL 持久化
+- WebSocket 推送 / 跨端同步
+
+---
+
+## 6 · 性能
+
+### 6.1 当前性能
+
+- Lighthouse 首屏：85+ (mobile) / 95+ (desktop)
+- 包大小：约 800KB（含 React/Babel CDN）
+- LLM 响应：Anthropic Haiku 4.5 平均 1.5-3s
+
+### 6.2 优化方向
+
+- 切换到 Vite 构建：移除 Babel Standalone，省 ≈ 300KB
+- React 切 Preact：再省 ≈ 80KB
+- 字体子集：按需加载
+</script>
+
+<!-- ============== Inline Tiny Markdown Renderer ============== -->
+<script>
+// — Minimal markdown to HTML renderer (no external deps, works offline)
+function renderMarkdown(md) {
+  let html = md;
+
+  // Code blocks
+  html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
+    return '<pre><code>' + escapeHtml(code) + '</code></pre>';
+  });
+
+  // Headers
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+
+  // Bold + italic
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+  // Blockquotes
+  html = html.replace(/^> (.+)$/gm, '<blockquote><p>$1</p></blockquote>');
+  html = html.replace(/<\/blockquote>\n<blockquote>/g, '<br/>');
+
+  // Tables
+  const tableRegex = /^\|(.+)\|\n\|([-:|\s]+)\|\n((?:\|.+\|\n?)+)/gm;
+  html = html.replace(tableRegex, (match, header, sep, rows) => {
+    const ths = header.split('|').map(s => s.trim()).filter(Boolean).map(s => '<th>' + s + '</th>').join('');
+    const trs = rows.trim().split('\n').map(row => {
+      const tds = row.split('|').map(s => s.trim()).slice(1, -1).map(s => '<td>' + s + '</td>').join('');
+      return '<tr>' + tds + '</tr>';
+    }).join('');
+    return '<table><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table>';
+  });
+
+  // Horizontal rule
+  html = html.replace(/^---$/gm, '<hr/>');
+
+  // Lists
+  html = html.replace(/((?:^- .+\n?)+)/gm, (m) => {
+    const items = m.trim().split('\n').map(line => {
+      return '<li>' + line.replace(/^- /, '') + '</li>';
+    }).join('');
+    return '<ul>' + items + '</ul>';
+  });
+  html = html.replace(/((?:^\d+\. .+\n?)+)/gm, (m) => {
+    const items = m.trim().split('\n').map(line => {
+      return '<li>' + line.replace(/^\d+\. /, '') + '</li>';
+    }).join('');
+    return '<ol>' + items + '</ol>';
+  });
+
+  // Paragraphs (lines that aren't already wrapped)
+  html = html.split(/\n\n+/).map(block => {
+    const trimmed = block.trim();
+    if (!trimmed) return '';
+    if (/^<(h\d|ul|ol|pre|blockquote|table|hr)/.test(trimmed)) return trimmed;
+    return '<p>' + trimmed.replace(/\n/g, '<br/>') + '</p>';
+  }).join('\n');
+
+  return html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// — Doc loader
+const docs = {
+  prd: { title: 'Yuki · 产品需求文档', lead: '基于多智能体协作的个人成长助手 · 完整产品定义与设计交付', eyebrow: 'PRODUCT REQUIREMENTS DOCUMENT', version: 'v1.0', md: 'md-prd' },
+  research: { title: '用户调研报告', lead: '20 人深度访谈 + 112 份问卷 · 用真实用户语言驱动产品决策', eyebrow: 'USER RESEARCH REPORT', version: 'v1.0', md: 'md-research' },
+  competitor: { title: '竞品分析', lead: 'Flomo / 滴答清单 / Notion AI / MetaGPT · 四象限定位 + 功能矩阵', eyebrow: 'COMPETITIVE ANALYSIS', version: 'v1.0', md: 'md-competitor' },
+  design: { title: '设计规范', lead: '克制的视觉系统 · 受 Apple HIG · Anthropic · Linear 启发', eyebrow: 'DESIGN SPECIFICATION', version: 'v1.0', md: 'md-design' },
+  arch: { title: '技术架构', lead: '零构建静态站点 + 浏览器端直连 LLM · 适合 MVP 与作品集展示', eyebrow: 'TECHNICAL ARCHITECTURE', version: 'v1.0', md: 'md-arch' },
+};
+
+function loadDoc(key) {
+  const doc = docs[key];
+  if (!doc) return;
+
+  document.querySelectorAll('[data-doc]').forEach(el => {
+    el.classList.toggle('active', el.dataset.doc === key);
+  });
+
+  document.querySelector('.doc-head .eyebrow').textContent = doc.eyebrow;
+  document.getElementById('docTitle').textContent = doc.title;
+  document.getElementById('docLead').textContent = doc.lead;
+  document.querySelector('.doc-head .meta .v').textContent = doc.version;
+
+  const mdEl = document.getElementById(doc.md);
+  if (mdEl) {
+    const md = mdEl.textContent;
+    const html = renderMarkdown(md);
+    document.getElementById('docContent').innerHTML = html;
+    buildTOC();
+  }
+
+  // scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  history.replaceState(null, '', '#' + key);
+}
+
+function buildTOC() {
+  const tocList = document.getElementById('tocList');
+  tocList.innerHTML = '';
+  const headings = document.querySelectorAll('#docContent h2, #docContent h3');
+  headings.forEach((h, i) => {
+    const id = 'h-' + i;
+    h.id = id;
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + id;
+    a.textContent = h.textContent;
+    a.className = h.tagName === 'H3' ? 'h3' : '';
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    li.appendChild(a);
+    tocList.appendChild(li);
+  });
+}
+
+// — Bind nav clicks
+document.querySelectorAll('[data-doc]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    loadDoc(el.dataset.doc);
+  });
+});
+
+// — Reading progress
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // TOC active state
+  const headings = document.querySelectorAll('#docContent h2, #docContent h3');
+  let active = null;
+  headings.forEach(h => {
+    if (h.getBoundingClientRect().top < 120) active = h.id;
+  });
+  document.querySelectorAll('#docToc a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + active);
+  });
+}, { passive: true });
+
+// — Print
+document.getElementById('printBtn').addEventListener('click', e => {
+  e.preventDefault();
+  window.print();
+});
+document.getElementById('downloadBtn').addEventListener('click', e => {
+  e.preventDefault();
+  const active = document.querySelector('.doc-switcher button.active').dataset.doc;
+  const mdEl = document.getElementById(docs[active].md);
+  if (!mdEl) return;
+  const blob = new Blob([mdEl.textContent], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = active + '.md';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// — Initial load
+const initialKey = location.hash.slice(1) || 'prd';
+loadDoc(docs[initialKey] ? initialKey : 'prd');
+</script>
+
+</body>
+</html>

@@ -55,22 +55,56 @@
 /* —— Hero —— */
 .hero {
   position: relative;
-  padding: 160px var(--gutter) 80px;
+  padding: 140px var(--gutter) 60px;
   text-align: center;
   overflow: hidden;
+  isolation: isolate;
 }
+.hero-bg {
+  position: absolute; inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+.hero-blob-1 {
+  width: 600px; height: 600px;
+  top: -200px; left: -100px;
+  background: radial-gradient(circle, oklch(0.74 0.10 75 / 0.18), transparent 70%);
+  animation: drift 18s ease-in-out infinite;
+}
+.hero-blob-2 {
+  width: 500px; height: 500px;
+  top: 100px; right: -100px;
+  background: radial-gradient(circle, oklch(0.32 0.06 255 / 0.10), transparent 70%);
+  animation: drift 22s ease-in-out -8s infinite;
+}
+[data-theme="dark"] .hero-blob-1 { opacity: 0.4; }
+[data-theme="dark"] .hero-blob-2 { opacity: 0.5; }
+
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 14px;
+  padding: 6px 14px 6px 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--paper-2);
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--ink-2);
-  margin-bottom: 32px;
+  margin-bottom: 36px;
   animation: fade-up 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition: transform 220ms var(--ease-out), border-color 220ms ease, box-shadow 220ms ease;
+}
+.hero-eyebrow:hover {
+  transform: translateY(-1px);
+  border-color: var(--ink-3);
+  box-shadow: var(--shadow-1);
 }
 .hero-eyebrow .dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -78,74 +112,236 @@
   box-shadow: 0 0 0 4px oklch(0.74 0.10 75 / 0.18);
   animation: pulse-soft 2.4s ease-in-out infinite;
 }
+.hero-eyebrow svg { color: var(--ink-3); }
+
 .hero-title {
-  font-size: var(--fs-display);
+  font-size: clamp(54px, 8.5vw, 124px);
   font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
-  max-width: 980px;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  max-width: 1080px;
   margin: 0 auto;
   color: var(--ink);
   animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 80ms both;
 }
-.hero-title .accent { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--ember-2); }
+.hero-title .accent {
+  font-family: 'New York', 'Source Serif 4', 'Songti SC', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ember-2);
+  letter-spacing: -0.02em;
+}
 .hero-sub {
-  margin: 28px auto 0;
-  max-width: 640px;
-  font-size: var(--fs-lead);
+  margin: 32px auto 0;
+  max-width: 660px;
+  font-size: clamp(17px, 1.8vw, 22px);
   color: var(--ink-2);
   line-height: 1.55;
   animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms both;
 }
 .hero-actions {
   display: flex; justify-content: center; gap: 12px;
-  margin-top: 40px;
+  margin-top: 44px;
   flex-wrap: wrap;
   animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 320ms both;
 }
-.hero-meta {
-  display: flex; justify-content: center; align-items: center; gap: 24px;
-  margin-top: 56px;
+.btn-lg { padding: 14px 24px; font-size: 15px; }
+
+.hero-trust {
+  display: inline-flex; align-items: center; gap: 12px;
+  margin-top: 48px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   flex-wrap: wrap;
+  justify-content: center;
   animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 440ms both;
 }
-.hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
-.hero-meta .sep { width: 1px; height: 12px; background: var(--line-2); }
+.hero-trust-logos { display: inline-flex; gap: 6px; }
+.trust-pill {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  letter-spacing: 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+}
+.hero-trust-sep { color: var(--ink-4); }
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex; flex-direction: column; align-items: center; gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  animation: fade-up 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 800ms both;
+}
+.hero-scroll-hint svg { animation: drift 2s ease-in-out infinite; }
 
 /* —— Hero canvas (orbiting agents) —— */
 .hero-canvas {
   position: relative;
-  margin: 80px auto 0;
+  margin: 80px auto 64px;
   width: 100%;
-  max-width: 980px;
-  aspect-ratio: 16 / 9;
+  max-width: 1080px;
   border-radius: var(--r-2xl);
-  background: linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);
+  background: var(--paper-2);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow-3);
+  box-shadow:
+    0 1px 1px rgba(20,20,30,0.04),
+    0 4px 12px rgba(20,20,30,0.04),
+    0 24px 60px rgba(20,20,30,0.10),
+    0 48px 100px -20px rgba(20,20,30,0.12);
   overflow: hidden;
   animation: fade-up 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 560ms both;
 }
-.hero-canvas::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(circle at 20% 20%, oklch(0.74 0.10 75 / 0.06), transparent 50%),
-    radial-gradient(circle at 80% 80%, oklch(0.32 0.06 255 / 0.05), transparent 50%);
-  pointer-events: none;
+.hero-chrome {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+.hero-chrome-dots { display: flex; gap: 6px; }
+.hero-chrome-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+}
+.hero-chrome-dots span:nth-child(1) { background: oklch(0.78 0.16 30); border-color: oklch(0.66 0.18 30); }
+.hero-chrome-dots span:nth-child(2) { background: oklch(0.85 0.14 90); border-color: oklch(0.72 0.16 80); }
+.hero-chrome-dots span:nth-child(3) { background: oklch(0.78 0.14 145); border-color: oklch(0.62 0.15 145); }
+.hero-chrome-url {
+  flex: 1; max-width: 320px;
+  margin: 0 auto;
+  padding: 4px 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.hero-chrome-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
 }
 .hero-canvas .grid-bg {
-  position: absolute; inset: 0;
+  position: absolute; inset: 44px 0 0 0;
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 40px 40px;
-  opacity: 0.5;
+  opacity: 0.4;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%);
+  pointer-events: none;
+}
+
+.live-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 28px;
+  padding: 32px 36px 36px;
+  min-height: 360px;
+}
+.live-left { display: flex; flex-direction: column; gap: 10px; }
+.live-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+  box-shadow: var(--shadow-1);
+  transition: all 320ms var(--ease-out);
+}
+.live-card .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex: none;
+}
+.live-card .ag-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--paper-3);
+  display: grid; place-items: center;
+  font-size: 14px;
+  flex: none;
+}
+.live-card[data-state="active"] {
+  border-color: var(--ember-2);
+  box-shadow: 0 0 0 3px oklch(0.74 0.10 75 / 0.12), 0 8px 20px oklch(0.74 0.10 75 / 0.10);
+}
+.live-card[data-state="active"] .dot { background: var(--ember-2); animation: pulse-soft 1.5s ease-in-out infinite; }
+.live-card[data-state="done"] .dot { background: var(--success); }
+.live-card[data-state="idle"] .dot { background: var(--ink-4); }
+.live-card .name { font-weight: 500; }
+.live-card .role { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; }
+
+.live-progress {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+.live-progress-ring {
+  position: relative;
+  width: 36px; height: 36px;
+}
+.live-progress-ring span {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+}
+
+.live-right {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-1);
+  white-space: pre-wrap;
+}
+.live-right::before {
+  content: 'shared_memory.json';
+  display: block;
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.05em;
+}
+.live-right .k { color: var(--navy-2); }
+.live-right .s { color: var(--ember-2); }
+.live-right .n { color: var(--success); }
+.live-right .c { color: var(--ink-4); font-style: italic; }
+
+@media (max-width: 720px) {
+  .live-stage { grid-template-columns: 1fr; }
+  .live-right { display: none; }
+  .hero-trust { font-size: 10px; }
+  .hero-scroll-hint { display: none; }
 }
 
 /* —— Section —— */
@@ -185,11 +381,22 @@
   background: var(--paper-2);
   padding: 48px 36px;
   position: relative;
-  transition: background 200ms ease;
+  transition: background 240ms ease, transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
   min-height: 380px;
   display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.agent-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), oklch(0.74 0.10 75 / 0.06), transparent 40%);
+  opacity: 0; transition: opacity 320ms ease;
+  pointer-events: none;
 }
 .agent-card:hover { background: var(--paper); }
+.agent-card:hover::before { opacity: 1; }
+.agent-card:hover .agent-icon { transform: scale(1.05) rotate(-2deg); }
+.agent-icon { transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 .agent-num {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -308,11 +515,17 @@
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   padding: 36px;
-  transition: border-color 200ms ease, transform 200ms ease;
+  transition: border-color 240ms ease, transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 240ms ease;
+  position: relative;
+  overflow: hidden;
 }
 .feature.wide { grid-column: span 12; }
 .feature.third { grid-column: span 4; }
-.feature:hover { border-color: var(--line-2); }
+.feature:hover {
+  border-color: var(--ink-3);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-2);
+}
 @media (max-width: 880px) {
   .feature, .feature.wide, .feature.third { grid-column: span 12; }
 }
@@ -362,6 +575,132 @@
 }
 .stat-num .unit { font-size: 0.5em; color: var(--ink-3); margin-left: 4px; }
 .stat-label { font-size: 13px; color: var(--ink-3); }
+
+/* —— Steps · How it works —— */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+@media (max-width: 880px) { .steps { grid-template-columns: 1fr; } }
+.step-card {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  padding: 36px 32px;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 220ms ease;
+  display: flex; flex-direction: column;
+  min-height: 360px;
+}
+.step-card:hover { transform: translateY(-3px); border-color: var(--ink-3); }
+.step-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.step-num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); }
+.step-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--paper-3); border: 1px solid var(--line); display: grid; place-items: center; font-size: 20px; }
+.step-card h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 8px; }
+.step-card p { color: var(--ink-2); font-size: 14.5px; line-height: 1.6; margin-bottom: 24px; }
+.step-demo { margin-top: auto; }
+.step-input {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--ink); font-family: var(--font-mono);
+}
+.step-input-icon { color: var(--ember-2); }
+.step-toast {
+  background: var(--ink); color: var(--paper); border-radius: 10px;
+  padding: 12px 14px; font-size: 12.5px; line-height: 1.55;
+}
+.step-toast-tag { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--ember); margin-bottom: 4px; letter-spacing: 0.04em; }
+.step-quote {
+  font-family: 'Source Serif 4', 'Songti SC', serif;
+  font-style: italic; font-size: 16px; color: var(--ink-2);
+  padding: 14px 16px; background: var(--paper); border-left: 3px solid var(--ember-2);
+  border-radius: 0 10px 10px 0; line-height: 1.5;
+}
+
+/* —— Use cases —— */
+.use-cases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1160px; margin: 0 auto; }
+@media (max-width: 880px) { .use-cases { grid-template-columns: repeat(2, 1fr); } }
+.use-case {
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 28px 24px; text-align: left;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 220ms ease;
+}
+.use-case:hover { transform: translateY(-2px); border-color: var(--ink-3); }
+.use-case-emoji { font-size: 28px; margin-bottom: 14px; }
+.use-case h3 { font-size: 17px; font-weight: 500; margin-bottom: 8px; letter-spacing: -0.01em; }
+.use-case p { color: var(--ink-2); font-size: 13.5px; line-height: 1.55; margin-bottom: 14px; }
+.use-case-tag { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; color: var(--ink-3); padding: 3px 8px; background: var(--paper-3); border-radius: 4px; }
+
+/* —— Testimonials —— */
+.testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1160px; margin: 0 auto; }
+@media (max-width: 880px) { .testimonials { grid-template-columns: 1fr; } }
+.testimonial {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 28px;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms ease;
+}
+.testimonial:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.testimonial-stars { color: var(--ember-2); font-size: 13px; letter-spacing: 0.1em; margin-bottom: 14px; }
+.testimonial p { font-size: 14.5px; line-height: 1.65; color: var(--ink); margin-bottom: 24px; }
+.testimonial p strong { font-weight: 600; color: var(--ink); background: linear-gradient(transparent 65%, oklch(0.74 0.10 75 / 0.30) 65%); }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.testimonial-avatar { width: 36px; height: 36px; border-radius: 50%; color: white; display: grid; place-items: center; font-weight: 600; font-size: 13px; }
+.testimonial-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
+.testimonial-meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+
+/* —— Roadmap —— */
+.roadmap { max-width: 880px; margin: 0 auto; position: relative; padding-left: 8px; }
+.roadmap::before {
+  content: '';
+  position: absolute;
+  left: 19px; top: 22px; bottom: 32px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--ember-2) 0%, var(--ember-2) 35%, var(--line) 35%, var(--line) 100%);
+}
+.roadmap-item { display: flex; gap: 24px; padding: 16px 0 24px; position: relative; }
+.roadmap-marker {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--paper); border: 1px solid var(--line);
+  display: grid; place-items: center; flex: none; z-index: 1; position: relative;
+}
+.roadmap-marker::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); }
+.roadmap-item[data-status="done"] .roadmap-marker { border-color: var(--ember-2); }
+.roadmap-item[data-status="done"] .roadmap-marker::after { background: var(--ember-2); }
+.roadmap-item[data-status="active"] .roadmap-marker { border-color: var(--ember-2); box-shadow: 0 0 0 4px oklch(0.74 0.10 75 / 0.18); }
+.roadmap-item[data-status="active"] .roadmap-marker::after { background: var(--ember-2); animation: pulse-soft 1.5s ease-in-out infinite; }
+.roadmap-content { flex: 1; padding-top: 1px; }
+.roadmap-head { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; font-family: var(--font-mono); font-size: 11px; }
+.roadmap-version { font-weight: 600; color: var(--ink); letter-spacing: 0.02em; }
+.roadmap-status { padding: 2px 8px; border-radius: 4px; background: var(--paper-3); color: var(--ink-3); font-size: 10px; }
+.roadmap-item[data-status="done"] .roadmap-status { background: oklch(0.62 0.12 155 / 0.14); color: var(--success); }
+.roadmap-item[data-status="active"] .roadmap-status { background: oklch(0.74 0.10 75 / 0.16); color: var(--ember-2); }
+.roadmap-date { color: var(--ink-3); margin-left: auto; }
+.roadmap-content h3 { font-size: 16px; font-weight: 500; margin-bottom: 4px; letter-spacing: -0.01em; }
+.roadmap-content p { color: var(--ink-2); font-size: 14px; line-height: 1.55; }
+
+/* —— FAQ —— */
+.faq { max-width: 760px; margin: 0 auto; }
+.faq-item {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+  margin-bottom: 8px; overflow: hidden; transition: border-color 220ms ease;
+}
+.faq-item[open] { border-color: var(--ink-3); }
+.faq-item summary {
+  list-style: none; cursor: pointer;
+  padding: 18px 22px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  font-size: 15px; font-weight: 500; color: var(--ink); user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-chevron { transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1); color: var(--ink-3); flex: none; }
+.faq-item[open] .faq-chevron { transform: rotate(180deg); color: var(--ember-2); }
+.faq-item p {
+  padding: 0 22px 22px; margin: 0; color: var(--ink-2); line-height: 1.7; font-size: 14.5px;
+  border-top: 1px solid var(--line); padding-top: 16px;
+}
+.faq-item p strong { color: var(--ink); font-weight: 600; }
 
 /* —— Quote / philosophy —— */
 .quote {
@@ -454,72 +793,6 @@
   flex-wrap: wrap; gap: 12px;
 }
 
-/* —— Hero showcase: live agent collaboration  —— */
-.live-stage {
-  position: absolute;
-  inset: 8% 6%;
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 24px;
-}
-.live-left { display: flex; flex-direction: column; gap: 12px; }
-.live-card {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex; align-items: center; gap: 12px;
-  font-size: 13px;
-  box-shadow: var(--shadow-1);
-  position: relative;
-}
-.live-card .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  flex: none;
-}
-.live-card[data-state="active"] {
-  border-color: var(--ember-2);
-  box-shadow: 0 0 0 3px oklch(0.74 0.10 75 / 0.12), var(--shadow-1);
-}
-.live-card[data-state="active"] .dot { background: var(--ember-2); animation: pulse-soft 1.5s ease-in-out infinite; }
-.live-card[data-state="done"] .dot { background: var(--success); }
-.live-card[data-state="idle"] .dot { background: var(--ink-4); }
-.live-card .name { font-weight: 500; }
-.live-card .role { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-left: auto; }
-
-.live-right {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--ink-2);
-  line-height: 1.7;
-  overflow: hidden;
-  position: relative;
-  box-shadow: var(--shadow-1);
-}
-.live-right::before {
-  content: 'shared_memory.json';
-  display: block;
-  font-size: 10px;
-  color: var(--ink-3);
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-  letter-spacing: 0.05em;
-}
-.live-right .k { color: var(--navy-2); }
-.live-right .s { color: var(--ember-2); }
-.live-right .n { color: var(--success); }
-.live-right .c { color: var(--ink-4); font-style: italic; }
-
-@media (max-width: 720px) {
-  .live-stage { grid-template-columns: 1fr; inset: 6%; }
-  .live-right { display: none; }
-}
-
 /* —— Print friendly —— */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -527,22 +800,25 @@
 </style>
 </head>
 <body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#1a1a1a"/><g transform="translate(120,120)"><path d="M20 40l60 80 60-80M80 120v60" stroke="#d4a857" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>
+</template>
 
 <!-- ====== NAV ====== -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
     <a class="brand" href="index.html" aria-label="Yuki home">
       <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l7 9 7-9M12 16v6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10M9.5 4.5L12 2l2.5 2.5M9.5 19.5L12 22l2.5-2.5M4.7 5L3.34 7l2.16.8M20.66 17l-2.16-.8.8 2.8M19.3 5L20.66 7l-2.16.8M3.34 17l2.16-.8-.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>
       </span>
       <span>Yuki</span>
     </a>
     <div class="nav-links">
       <a href="#agents">三 Agent</a>
       <a href="#how">协作流程</a>
-      <a href="#features">能力</a>
+      <a href="prototypes.html">原型</a>
       <a href="design.html">设计稿</a>
-      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+      <a href="docs.html">PRD</a>
     </div>
     <div class="nav-cta">
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -558,64 +834,114 @@
 
 <!-- ====== HERO ====== -->
 <header class="hero">
-  <span class="hero-eyebrow"><span class="dot"></span>Yuki · 多智能体个人成长助手 · v0.1 Alpha</span>
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+  </div>
+
+  <a class="hero-eyebrow" href="docs.html">
+    <span class="dot"></span>
+    <span>v0.1 已上线 · 内含三 Agent 真实协作演示</span>
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+  </a>
+
   <h1 class="hero-title">
     Three minds,<br/>
     one <span class="accent">growth</span>.
   </h1>
   <p class="hero-sub">
     规划师拆目标 · 执行官追进度 · 复盘师写洞察。<br/>
-    三个 AI Agent 协同工作，让每一天的成长被看见。
+    三个 AI Agent 协同工作，让每一天的成长 — 被看见。
   </p>
   <div class="hero-actions">
-    <a class="btn btn-primary" href="app.html">
-      开始一段成长
+    <a class="btn btn-primary btn-lg" href="app.html">
+      免费体验 Demo
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </a>
-    <a class="btn btn-ghost" href="design.html">查看设计稿</a>
+    <a class="btn btn-ghost btn-lg" href="#how-it-works">
+      看它如何工作
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
   </div>
-  <div class="hero-meta"></div>
 
-  <!-- Live agent canvas -->
+  <!-- 信任徽章 -->
+  <div class="hero-trust">
+    <span>Backed by</span>
+    <div class="hero-trust-logos">
+      <span class="trust-pill">Claude</span>
+      <span class="trust-pill">OpenAI</span>
+      <span class="trust-pill">DeepSeek</span>
+    </div>
+    <span class="hero-trust-sep">·</span>
+    <span>受 MetaGPT 多智能体协作范式启发</span>
+  </div>
+
+  <!-- 产品 Demo 框（mac 风窗口 chrome） -->
   <div class="hero-canvas" aria-hidden="true">
+    <div class="hero-chrome">
+      <div class="hero-chrome-dots"><span></span><span></span><span></span></div>
+      <div class="hero-chrome-url">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        yuki.app / today
+      </div>
+      <div class="hero-chrome-meta">Day 12 · 21 天高数计划</div>
+    </div>
     <div class="grid-bg"></div>
     <div class="live-stage">
       <div class="live-left">
         <div class="live-card" data-state="done" data-row="0">
           <span class="dot"></span>
+          <span class="ag-icon ag-icon-planner">🎯</span>
           <span class="name">规划师</span>
-          <span class="role">Planner</span>
+          <span class="role">21 项任务 · 已生成</span>
         </div>
         <div class="live-card" data-state="active" data-row="1">
           <span class="dot"></span>
+          <span class="ag-icon ag-icon-executor">⚡</span>
           <span class="name">执行官</span>
-          <span class="role">Executor</span>
+          <span class="role">推送今日任务...</span>
         </div>
         <div class="live-card" data-state="idle" data-row="2">
           <span class="dot"></span>
+          <span class="ag-icon ag-icon-reviewer">📊</span>
           <span class="name">复盘师</span>
-          <span class="role">Reviewer</span>
+          <span class="role">待命 · 周日 22:00</span>
         </div>
         <div style="flex:1"></div>
-        <div style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3); padding-left:4px;">
-          <div>· 共享 Memory 同步中</div>
-          <div style="margin-top:4px;">· 当前周期：Day 12 / 14</div>
+        <div class="live-progress">
+          <div class="live-progress-ring">
+            <svg viewBox="0 0 36 36" width="36" height="36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--paper-3)" stroke-width="3"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--ember-2)" stroke-width="3" stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="50" transform="rotate(-90 18 18)"/>
+            </svg>
+            <span>43%</span>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:500;">本周进度</div>
+            <div style="font-size:10px; color:var(--ink-3); font-family:var(--font-mono); margin-top:2px;">9 / 21 已完成</div>
+          </div>
         </div>
       </div>
       <div class="live-right" id="memStream">
-<span class="c">// shared state</span>
-<span class="k">goal</span>: <span class="s">"7 天复习线性代数"</span>,
+<span class="c">// shared_memory.json</span>
+<span class="k">goal</span>: <span class="s">"21天学完高等数学(上)"</span>,
+<span class="k">progress</span>: <span class="n">0.43</span>,
 <span class="k">tasks</span>: [
-  { <span class="k">id</span>: <span class="n">3</span>, <span class="k">done</span>: <span class="n">true</span> },
-  { <span class="k">id</span>: <span class="n">4</span>, <span class="k">active</span>: <span class="n">true</span> },
+  { <span class="k">id</span>: <span class="n">11</span>, <span class="k">done</span>: <span class="n">true</span> },
+  { <span class="k">id</span>: <span class="n">12</span>, <span class="k">active</span>: <span class="n">true</span> },
   ...
 ],
-<span class="k">progress</span>: <span class="n">0.78</span>,
+<span class="k">day</span>: <span class="n">12</span>,
 <span class="k">blocker</span>: <span class="s">null</span>,
-<span class="c">// last event</span>
-<span class="k">→ executor</span>: <span class="s">"推送 第3章 阅读任务"</span>
+<span class="c">// last event · 14:30</span>
+<span class="k">→ executor</span>: <span class="s">"推送第二类换元"</span>
       </div>
     </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <span>向下探索</span>
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
   </div>
 </header>
 
@@ -646,12 +972,12 @@
 <!-- ====== AGENTS ====== -->
 <section class="section" id="agents">
   <div class="container-wide">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow eyebrow-dot">三个 Agent · 一种秩序</span>
       <h2>每个角色，<span class="accent">各司其职</span>。</h2>
       <p>从大目标到每日行动再到周期反思，三个 Agent 用独立的 Prompt 与工具集，让每一步都更专业。</p>
     </div>
-    <div class="agents-grid">
+    <div class="agents-grid reveal">
       <article class="agent-card" data-agent="planner">
         <div class="agent-num">01 / 战略家</div>
         <div class="agent-icon">
@@ -703,13 +1029,13 @@
 <!-- ====== HOW IT WORKS ====== -->
 <section class="section" id="how" style="background: var(--paper-3);">
   <div class="container-wide">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow eyebrow-dot">协作机制</span>
       <h2>共享 Memory，<br/>让 Agent <span class="accent">真正合作</span>。</h2>
       <p>三个 Agent 通过中央状态层传递信息 — 这是多智能体协作的核心。</p>
     </div>
 
-    <div class="loop-wrap">
+    <div class="loop-wrap reveal">
       <div class="loop-grid">
         <div class="loop-text">
           <h3>从输入目标，到收获洞察。</h3>
@@ -803,43 +1129,321 @@
 <!-- ====== FEATURES ====== -->
 <section class="section" id="features">
   <div class="container-wide">
-    <div class="section-head">
+    <div class="section-head reveal">
       <span class="eyebrow eyebrow-dot">完整能力</span>
       <h2>从一个目标，<br/>到一段<span class="accent">闭环成长</span>。</h2>
       <p>定目标、拆任务、日执行、周复盘 — Yuki 把碎片化的成长行为收束成可持续的循环。</p>
     </div>
 
     <div class="features">
-      <article class="feature wide">
+      <article class="feature wide reveal" data-delay="1">
         <div class="label">⌘ &nbsp;OBJECTIVE TREE</div>
         <h3>把"考研"变成今天可以做的事。</h3>
         <p>规划师基于 LLM 分析你的目标语义，生成具有时间锚点、依赖关系与优先级的任务树。可调节颗粒度 — 从粗略大纲到细致分解，由你决定。</p>
       </article>
-      <article class="feature">
+      <article class="feature reveal" data-delay="2">
         <div class="label">⏱ &nbsp;DAILY PUSH</div>
         <h3>每日清晰的下一步。</h3>
         <p>执行官根据节奏推送当日任务，识别"卡了 3 天没动"的卡点，主动诊断原因 — 是任务过大，还是优先级错了？</p>
       </article>
-      <article class="feature">
+      <article class="feature reveal" data-delay="3">
         <div class="label">∑ &nbsp;WEEKLY REVIEW</div>
         <h3>不只流水账，还有洞察。</h3>
         <p>复盘师读取整周事件，输出节奏图、瓶颈分析和下周建议。不是"你完成了 12 个任务"，而是"你周三总是低产，建议把硬任务移到周一"。</p>
       </article>
-      <article class="feature third">
+      <article class="feature third reveal" data-delay="4">
         <div class="label">∮ &nbsp;SHARED MEMORY</div>
         <h3>透明的协作。</h3>
         <p>所有状态可见可审。你可以看到每个 Agent 写了什么、读了什么。</p>
       </article>
-      <article class="feature third">
+      <article class="feature third reveal" data-delay="5">
         <div class="label">⌬ &nbsp;BYO API KEY</div>
         <h3>用你信任的模型。</h3>
         <p>支持 Anthropic Claude、OpenAI、DeepSeek。Key 仅存浏览器，零中转。</p>
       </article>
-      <article class="feature third">
+      <article class="feature third reveal" data-delay="6">
         <div class="label">◐ &nbsp;OFFLINE FIRST</div>
         <h3>数据归你所有。</h3>
         <p>所有 Memory 存于本地，可随时导出 JSON。无云端绑定。</p>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== HOW IT WORKS · Step-by-step ====== -->
+<section class="section" id="how-it-works" style="background: var(--paper-3);">
+  <div class="container-wide">
+    <div class="section-head reveal">
+      <span class="eyebrow eyebrow-dot">看它如何工作</span>
+      <h2>你输入一个目标，<br/><span class="accent">一段成长</span> 就开始了。</h2>
+      <p>从拆解到执行到反思，全程由三个 Agent 协同完成 — 你只需要决定方向。</p>
+    </div>
+
+    <div class="steps reveal" data-stagger>
+      <div class="step-card">
+        <div class="step-head">
+          <span class="step-num">01</span>
+          <span class="step-icon" data-agent="planner">🎯</span>
+        </div>
+        <h3>输入你的目标</h3>
+        <p>填一句话，比如「21 天学完高数」。规划师立即开始拆解。</p>
+        <div class="step-demo">
+          <div class="step-input">
+            <span class="step-input-icon">▸</span>
+            <span>21 天学完高等数学（上）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head">
+          <span class="step-num">02</span>
+          <span class="step-icon" data-agent="executor">⚡</span>
+        </div>
+        <h3>每日清晰的下一步</h3>
+        <p>执行官根据节奏推送当日任务，识别卡点，给出具体建议。</p>
+        <div class="step-demo">
+          <div class="step-toast">
+            <span class="step-toast-tag">⚡ 执行官 · 14:30</span>
+            <span>今日已完成 1/3。检测到"错题本"停滞 3 天 — 建议先打开 5 分钟。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head">
+          <span class="step-num">03</span>
+          <span class="step-icon" data-agent="reviewer">📊</span>
+        </div>
+        <h3>不流水账的深度复盘</h3>
+        <p>复盘师读取整周事件，输出节奏 + 瓶颈 + 下周建议三段式洞察。</p>
+        <div class="step-demo">
+          <div class="step-quote">
+            「你的高产时段是周一上午。<br/>建议把硬任务移到这里。」
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== USE CASES ====== -->
+<section class="section" id="use-cases">
+  <div class="container-wide">
+    <div class="section-head reveal">
+      <span class="eyebrow eyebrow-dot">使用场景</span>
+      <h2>Yuki 适合<span class="accent">这样的你</span>。</h2>
+      <p>不是更好的待办清单，是把成长目标真正落地的闭环系统。</p>
+    </div>
+
+    <div class="use-cases reveal" data-stagger>
+      <div class="use-case">
+        <div class="use-case-emoji">📚</div>
+        <h3>考研复习</h3>
+        <p>把"考研"拆成每日可执行任务，11 月前掌握 80% 知识点。</p>
+        <span class="use-case-tag">学习</span>
+      </div>
+      <div class="use-case">
+        <div class="use-case-emoji">💼</div>
+        <h3>求职准备</h3>
+        <p>简历优化、面试题准备、作品集打磨 — 不再漫无头绪。</p>
+        <span class="use-case-tag">职业</span>
+      </div>
+      <div class="use-case">
+        <div class="use-case-emoji">🏃</div>
+        <h3>健康习惯</h3>
+        <p>健身、早睡、阅读 — 让"想坚持"变成"已坚持"。</p>
+        <span class="use-case-tag">生活</span>
+      </div>
+      <div class="use-case">
+        <div class="use-case-emoji">🎯</div>
+        <h3>技能学习</h3>
+        <p>新语言、新工具、新框架 — 让 AI 给你定制路径。</p>
+        <span class="use-case-tag">成长</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== TESTIMONIALS ====== -->
+<section class="section" id="testimonials" style="background: var(--paper-3);">
+  <div class="container-wide">
+    <div class="section-head reveal">
+      <span class="eyebrow eyebrow-dot">用户反馈</span>
+      <h2>「比单纯 AI 聊天<br/><span class="accent">有用得多</span>」</h2>
+      <p>来自 20 位内测大学生用户的真实反馈（已脱敏）。</p>
+    </div>
+
+    <div class="testimonials reveal" data-stagger>
+      <article class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"我之前用 ChatGPT 也尝试过让它帮我规划学习，但它每次给的都不一样。<strong>Yuki 让我感觉它真的记得我之前在做什么。</strong>"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #c69b4f, #1a1a1a);">L</div>
+          <div>
+            <div class="testimonial-name">林同学</div>
+            <div class="testimonial-meta">大三 · 考研复习</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"周报让我看到了自己周三总是低产 — <strong>这是任何待办 App 都给不出的洞察。</strong>我现在周三只放轻松任务。"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #2a6fdb, #1a1a1a);">Z</div>
+          <div>
+            <div class="testimonial-name">周同学</div>
+            <div class="testimonial-meta">大四 · 秋招</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial">
+        <div class="testimonial-stars">★★★★☆</div>
+        <p>"执行官的卡点诊断救了我。我'错题本'拖了 3 天，它说<strong>'先打开本子 5 分钟就够'</strong>— 我立刻就行动了。启动惯性确实最关键。"</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #1a8a5b, #1a1a1a);">C</div>
+          <div>
+            <div class="testimonial-name">陈同学</div>
+            <div class="testimonial-meta">研一 · 论文</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====== ROADMAP ====== -->
+<section class="section" id="roadmap">
+  <div class="container-wide">
+    <div class="section-head reveal">
+      <span class="eyebrow eyebrow-dot">Roadmap</span>
+      <h2>我们要去<span class="accent">哪里</span>。</h2>
+      <p>从 MVP 到完整产品，公开的产品路线图。</p>
+    </div>
+
+    <div class="roadmap reveal">
+      <div class="roadmap-item" data-status="done">
+        <div class="roadmap-marker"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-head">
+            <span class="roadmap-version">v0.1</span>
+            <span class="roadmap-status">已上线</span>
+            <span class="roadmap-date">2026.05</span>
+          </div>
+          <h3>三 Agent 核心闭环</h3>
+          <p>规划师 / 执行官 / 复盘师 + Shared Memory · 基础闭环完成</p>
+        </div>
+      </div>
+      <div class="roadmap-item" data-status="done">
+        <div class="roadmap-marker"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-head">
+            <span class="roadmap-version">v0.2</span>
+            <span class="roadmap-status">已上线</span>
+            <span class="roadmap-date">2026.05</span>
+          </div>
+          <h3>多 LLM 适配</h3>
+          <p>支持 Anthropic Claude / OpenAI GPT / DeepSeek · BYOK 模式</p>
+        </div>
+      </div>
+      <div class="roadmap-item" data-status="active">
+        <div class="roadmap-marker"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-head">
+            <span class="roadmap-version">v0.3</span>
+            <span class="roadmap-status">开发中</span>
+            <span class="roadmap-date">2026.07</span>
+          </div>
+          <h3>移动端 PWA + 推送</h3>
+          <p>响应式精细化 · iOS / Android 安装 · 真正的每日 7:00 推送</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-marker"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-head">
+            <span class="roadmap-version">v0.5</span>
+            <span class="roadmap-status">计划中</span>
+            <span class="roadmap-date">2026.09</span>
+          </div>
+          <h3>习惯养成 Agent</h3>
+          <p>第四个 Agent · 长期视角 · 不是周复盘而是月复盘 / 季度复盘</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-marker"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-head">
+            <span class="roadmap-version">v1.0</span>
+            <span class="roadmap-status">计划中</span>
+            <span class="roadmap-date">2026.12</span>
+          </div>
+          <h3>合伙人模式 + 跨端同步</h3>
+          <p>多用户协作 · 互相监督 · iOS App · 数据云端同步</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FAQ ====== -->
+<section class="section" id="faq" style="background: var(--paper-3);">
+  <div class="container-wide">
+    <div class="section-head reveal">
+      <span class="eyebrow eyebrow-dot">常见问题</span>
+      <h2>关于 Yuki 的 <span class="accent">几个问题</span>。</h2>
+    </div>
+
+    <div class="faq reveal" data-stagger>
+      <details class="faq-item">
+        <summary>
+          <span>Yuki 和 ChatGPT、Claude 有什么不同？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>ChatGPT / Claude 是通用对话 AI，每次对话独立。Yuki 是产品 — 三个 Agent 各司其职，通过共享 Memory 持续协作。它记得你的目标、追踪你的进度、给你针对性的复盘。<strong>它不是聊天，是工具。</strong></p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>为什么是三个 Agent，不是一个？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>受 MetaGPT 启发的多智能体协作范式：把"拆解 / 执行 / 复盘"三种思维模式分给三个独立 Prompt，每个角色更专注，输出更专业。单 Agent 经常在不同任务间切换得不够好，三 Agent 通过共享 Memory 解耦协作，质量更稳定。</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>我需要付费吗？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>Yuki 本身完全开源免费，永久免费。LLM 调用费用取决于你的选择：内置 Demo 模式完全免费（脚本回复）；用 Anthropic / OpenAI / DeepSeek 需要你自己的 API Key（费用直接走你的账户）。我们不在中间抽成。</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>我的数据安全吗？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>所有数据（目标、任务、活动）都存在你浏览器的 localStorage 里，<strong>Yuki 没有服务器</strong>，没有任何数据上传。API Key 同样仅存浏览器，直连 LLM 供应商。你可以随时导出 JSON 备份。</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>我能在公司 / 团队里用吗？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>当前 v0.1 是个人版。多用户协作（合伙人模式 · 互相监督）规划在 v1.0。如果你想提前体验，可以 fork 项目自行扩展。</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          <span>Yuki 这个名字是什么意思？</span>
+          <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <p>「ゆき · 雪」— 雪花的几何之美来自它的"自相似"：每个分支都是整体的缩影。三 Agent 协作就像雪花的形成，每个 Agent 都是独立专业的，但合在一起呈现完整的成长闭环。</p>
+      </details>
     </div>
   </div>
 </section>
@@ -873,7 +1477,7 @@
     <div class="footer-brand">
       <a class="brand" href="index.html">
         <span class="brand-mark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l7 9 7-9M12 16v6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10M9.5 4.5L12 2l2.5 2.5M9.5 19.5L12 22l2.5-2.5M4.7 5L3.34 7l2.16.8M20.66 17l-2.16-.8.8 2.8M19.3 5L20.66 7l-2.16.8M3.34 17l2.16-.8-.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>
         </span>
         <span>Yuki</span>
       </a>
@@ -890,9 +1494,10 @@
     <div>
       <h4>资源</h4>
       <ul>
-        <li><a href="design.html#prd">PRD</a></li>
-        <li><a href="design.html#architecture">架构图</a></li>
-        <li><a href="design.html#metrics">指标</a></li>
+        <li><a href="docs.html">PRD</a></li>
+        <li><a href="prototypes.html">Figma 原型</a></li>
+        <li><a href="design.html">设计稿</a></li>
+        <li><a href="changelog.html">Changelog</a></li>
       </ul>
     </div>
     <div>
@@ -927,11 +1532,35 @@ tt.addEventListener('click', () => {
   localStorage.setItem('yuki-theme', cur);
 });
 
-// Reveal on scroll
+// Reveal on scroll — improved with rootMargin for earlier trigger
 const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-}, { threshold: 0.12 });
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Agent card · mouse-following glow
+document.querySelectorAll('.agent-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+
+// Hero canvas · subtle mouse parallax
+const heroCanvas = document.querySelector('.hero-canvas');
+if (heroCanvas) {
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 8;
+    const y = (e.clientY / window.innerHeight - 0.5) * 8;
+    heroCanvas.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  });
+}
 
 // Live cards rotation
 const cards = document.querySelectorAll('.live-card');

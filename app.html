@@ -6,13 +6,16 @@
 <title>Yuki · App</title>
 <link rel="stylesheet" href="styles/design-system.css" />
 <link rel="stylesheet" href="styles/app.css" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1a1a'/%3E%3Cpath d='M10 9l6 8 6-8M16 17v8' stroke='%23d4a857' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%231a1a1a'/%3E%3Cpath d='M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10M9.5 4.5L12 2l2.5 2.5M9.5 19.5L12 22l2.5-2.5' stroke='%23c69b4f' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='12' cy='12' r='1.2' fill='%23c69b4f'/%3E%3C/svg%3E" />
 <style>
 html, body { height: 100%; overflow: hidden; }
 body { margin: 0; }
 </style>
 </head>
 <body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#1a1a1a"/><g transform="translate(120,120)"><path d="M20 40l60 80 60-80M80 120v60" stroke="#d4a857" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>
+</template>
 <div id="root"></div>
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
@@ -21,6 +24,7 @@ body { margin: 0; }
 
 <script src="app/agent-engine.js"></script>
 <script type="text/babel" src="app/components.jsx"></script>
+<script type="text/babel" src="app/command-palette.jsx"></script>
 <script type="text/babel" src="app/pages.jsx"></script>
 <script type="text/babel" src="app/main.jsx"></script>
 

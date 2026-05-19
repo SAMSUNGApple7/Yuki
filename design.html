@@ -32,6 +32,41 @@
 .tab:hover:not(.active) { color: var(--ink); }
 
 main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
+
+/* TOC floating sidebar */
+.design-toc {
+  position: fixed;
+  top: 50%; right: 24px;
+  transform: translateY(-50%);
+  z-index: 40;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 10px;
+  box-shadow: var(--shadow-2);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.design-toc a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  transition: all 160ms ease;
+  white-space: nowrap;
+}
+.design-toc a:hover { background: var(--paper-2); color: var(--ink); }
+.design-toc a.active { background: var(--paper-3); color: var(--ember-2); }
+.design-toc a .num { font-weight: 600; }
+.design-toc a .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--line-2);
+}
+.design-toc a.active .dot { background: var(--ember-2); }
+@media (max-width: 1400px) { .design-toc { display: none; } }
+
 .doc-head { text-align: center; margin-bottom: 80px; }
 .doc-head .eyebrow { display: block; margin-bottom: 16px; }
 .doc-head h1 {
@@ -47,15 +82,42 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
   border-radius: var(--r-xl);
   overflow: hidden;
   margin-bottom: 64px;
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 320ms ease;
+}
+.frame:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
 }
 .frame-head {
-  padding: 16px 24px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--line);
-  display: flex; justify-content: space-between; align-items: baseline;
+  display: flex; justify-content: space-between; align-items: center;
   background: var(--paper);
+  gap: 12px;
 }
-.frame-head h2 { font-size: 18px; font-weight: 500; letter-spacing: -0.01em; }
-.frame-head .meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em; }
+.frame-head .dots {
+  display: flex; gap: 6px; margin-right: 4px;
+}
+.frame-head .dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+}
+.frame-head .dots span:nth-child(1) { background: oklch(0.78 0.16 30); border-color: oklch(0.66 0.18 30); }
+.frame-head .dots span:nth-child(2) { background: oklch(0.85 0.14 90); border-color: oklch(0.72 0.16 80); }
+.frame-head .dots span:nth-child(3) { background: oklch(0.78 0.14 145); border-color: oklch(0.62 0.15 145); }
+.frame-head .title-row { display: flex; align-items: center; gap: 14px; flex: 1; }
+.frame-head h2 { font-size: 14px; font-weight: 500; letter-spacing: -0.005em; }
+.frame-head .file {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink-3);
+}
+.frame-head .meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.04em; }
 .frame-body { padding: 36px; display: grid; place-items: center; background: var(--paper); }
 .frame-body.tall { padding: 36px 24px; }
 .frame-foot { padding: 16px 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); line-height: 1.6; }
@@ -111,20 +173,32 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 </style>
 </head>
 <body>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#1a1a1a"/><g transform="translate(120,120)"><path d="M20 40l60 80 60-80M80 120v60" stroke="#d4a857" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g></svg>
+</template>
 
 <nav class="page-nav">
   <div class="page-nav-inner">
     <a class="brand" href="index.html">
-      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l7 9 7-9M12 16v6"/></svg></span>
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.34 7l17.32 10M3.34 17l17.32-10M9.5 4.5L12 2l2.5 2.5M9.5 19.5L12 22l2.5-2.5M4.7 5L3.34 7l2.16.8M20.66 17l-2.16-.8.8 2.8M19.3 5L20.66 7l-2.16.8M3.34 17l2.16-.8-.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
       <span>Yuki / 设计稿</span>
     </a>
     <div class="tabs">
       <a class="tab" href="index.html">首页</a>
+      <a class="tab" href="prototypes.html">原型</a>
       <a class="tab active" href="design.html">设计稿</a>
       <a class="tab" href="app.html">Demo</a>
+      <a class="tab" href="docs.html">PRD</a>
     </div>
   </div>
 </nav>
+
+<aside class="design-toc" id="designToc">
+  <a href="#architecture" data-target="architecture" class="active"><span class="dot"></span><span class="num">01</span> 架构图</a>
+  <a href="#features-map" data-target="features-map"><span class="dot"></span><span class="num">02</span> 功能脑图</a>
+  <a href="#flow" data-target="flow"><span class="dot"></span><span class="num">03</span> 用户路径</a>
+  <a href="#metrics" data-target="metrics"><span class="dot"></span><span class="num">05</span> 数据看板</a>
+</aside>
 
 <main>
 <div class="hero-pad"></div>
@@ -136,15 +210,19 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 </header>
 
 <!-- ====== 1. Architecture ====== -->
-<div class="section-title" id="architecture">
+<div class="section-title reveal" id="architecture">
   <h2>多智能体协作架构</h2>
   <span class="num">DESIGN 01 / ARCHITECTURE</span>
 </div>
 
-<div class="frame">
+<div class="frame reveal">
   <div class="frame-head">
-    <h2>Three Agents · One Shared Memory</h2>
-    <span class="meta">SVG · 900×600</span>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="title-row">
+      <h2>Three Agents · One Shared Memory</h2>
+      <span class="file">architecture.svg</span>
+    </div>
+    <span class="meta">900 × 600</span>
   </div>
   <div class="frame-body">
     <svg width="100%" viewBox="0 0 900 600" style="max-width: 900px;">
@@ -243,15 +321,19 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 </div>
 
 <!-- ====== 2. Functional mind map ====== -->
-<div class="section-title" id="features-map">
+<div class="section-title reveal" id="features-map">
   <h2>产品功能结构</h2>
   <span class="num">DESIGN 02 / FEATURE MAP</span>
 </div>
 
-<div class="frame">
+<div class="frame reveal">
   <div class="frame-head">
-    <h2>从一个目标，到完整闭环</h2>
-    <span class="meta">SVG · 1000×600</span>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="title-row">
+      <h2>从一个目标，到完整闭环</h2>
+      <span class="file">feature-map.svg</span>
+    </div>
+    <span class="meta">1000 × 600</span>
   </div>
   <div class="frame-body">
     <svg width="100%" viewBox="0 0 1000 600" style="max-width: 1000px;">
@@ -348,15 +430,19 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 </div>
 
 <!-- ====== 3. User Flow ====== -->
-<div class="section-title" id="flow">
+<div class="section-title reveal" id="flow">
   <h2>核心用户路径</h2>
   <span class="num">DESIGN 03 / USER FLOW</span>
 </div>
 
-<div class="frame">
+<div class="frame reveal">
   <div class="frame-head">
-    <h2>定目标 → 拆任务 → 日执行 → 周复盘</h2>
-    <span class="meta">SVG · 700×1000</span>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="title-row">
+      <h2>定目标 → 拆任务 → 日执行 → 周复盘</h2>
+      <span class="file">user-flow.svg</span>
+    </div>
+    <span class="meta">700 × 1000</span>
   </div>
   <div class="frame-body tall">
     <svg width="100%" viewBox="0 0 700 1000" style="max-width: 700px;">
@@ -448,15 +534,19 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 </div>
 
 <!-- ====== 5. Dashboard ====== -->
-<div class="section-title" id="metrics">
+<div class="section-title reveal" id="metrics">
   <h2>效果验证 · 数据看板</h2>
   <span class="num">DESIGN 05 / DASHBOARD</span>
 </div>
 
-<div class="frame">
+<div class="frame reveal">
   <div class="frame-head">
-    <h2>多 Agent 架构在 C 端工具产品的可行性验证</h2>
-    <span class="meta">EVALUATION SET · N = 50</span>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="title-row">
+      <h2>多 Agent 架构在 C 端工具产品的可行性验证</h2>
+      <span class="file">metrics-dashboard.html</span>
+    </div>
+    <span class="meta">EVALUATION · N=50</span>
   </div>
   <div class="frame-body" style="display:block; padding:32px;">
 
@@ -608,5 +698,24 @@ main { padding: 100px var(--gutter) 80px; max-width: 1280px; margin: 0 auto; }
 
 </main>
 
+<script>
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Floating TOC active state
+const tocSections = ['architecture','features-map','flow','metrics'].map(id => document.getElementById(id)).filter(Boolean);
+const tocLinks = document.querySelectorAll('.design-toc a');
+function syncToc() {
+  let active = tocSections[0];
+  tocSections.forEach(sec => {
+    if (sec.getBoundingClientRect().top < 200) active = sec;
+  });
+  tocLinks.forEach(a => a.classList.toggle('active', a.dataset.target === active.id));
+}
+window.addEventListener('scroll', syncToc, { passive: true });
+syncToc();
+</script>
 </body>
 </html>
